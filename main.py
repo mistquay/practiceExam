@@ -87,6 +87,7 @@ def row_to_question(row: sqlite3.Row) -> Dict[str, Any]:
     return {
         "id": row["id"],
         "category": row["category"],
+        "source_file": row["source_file"] if "source_file" in row.keys() else None,
         "type": q_type,
         "question": row["question"],
         "options": options,
@@ -244,6 +245,25 @@ def get_categories() -> Dict[str, List[str]]:
     return {"categories": categories}
 
 
+@app.get("/api/source_files")
+def get_source_files() -> Dict[str, List[str]]:
+    """
+    获取题库中的所有来源文件（source_file 字段），用于前端筛选。
+    """
+    conn = get_db_connection()
+    try:
+        cursor = conn.execute(
+            "SELECT DISTINCT source_file FROM questions "
+            "WHERE source_file IS NOT NULL AND TRIM(source_file) != '' "
+            "ORDER BY source_file"
+        )
+        source_files = [row["source_file"] for row in cursor.fetchall()]
+    finally:
+        conn.close()
+
+    return {"source_files": source_files}
+
+
 @app.get("/api/types")
 def get_types() -> Dict[str, List[str]]:
     """
@@ -267,6 +287,7 @@ def get_types() -> Dict[str, List[str]]:
 def get_questions(
     mode: str = Query("practice", pattern="^(practice|exam|mock|sequence)$"),
     category: Optional[str] = Query(default=None, description="题目类别，多个类别用逗号分隔"),
+    source_file: Optional[str] = Query(default=None, description="题目来源文件，多个来源用逗号分隔"),
     qtype: Optional[str] = Query(default=None, description="题目类型（type 字段），多个类型用逗号分隔"),
     count: int = Query(20, ge=1, le=5000, description="本次抽取的题目数量"),
 ) -> Dict[str, Any]:
@@ -278,6 +299,7 @@ def get_questions(
       - mock：模拟考试模式，基于全库生成一套约 total_score 的试卷
       - sequence：顺序练习模式，按题号顺序返回题目
     - category: 类别名称（可用逗号分隔多个，mock 模式下忽略）
+    - source_file: 来源文件（可用逗号分隔多个，mock 模式下忽略）
     - qtype: 题型（type 字段，可用逗号分隔多个，mock 模式下忽略）
     - count: 抽题数量（mock 模式下忽略）
     """
@@ -286,7 +308,7 @@ def get_questions(
         if mode == "mock":
             # 模拟考试：基于整个题库构造一套约 100 分的试卷
             cursor = conn.execute(
-                "SELECT id, category, type, question, options, answer, "
+                "SELECT id, category, source_file, type, question, options, answer, "
                 "explanation, analysis, score, codeId "
                 "FROM questions"
             )
@@ -308,6 +330,14 @@ def get_questions(
                     where_clauses.append(f"category IN ({placeholders})")
                     params.extend(cats)
 
+            if source_file:
+                # 支持逗号分隔的多个来源文件
+                source_files = [s.strip() for s in source_file.split(",") if s.strip()]
+                if source_files:
+                    placeholders = ",".join("?" for _ in source_files)
+                    where_clauses.append(f"source_file IN ({placeholders})")
+                    params.extend(source_files)
+
             if qtype:
                 # 支持逗号分隔的多个题型
                 types = [t.strip() for t in qtype.split(",") if t.strip()]
@@ -317,7 +347,7 @@ def get_questions(
                     params.extend(types)
 
             base_sql = (
-                "SELECT id, category, type, question, options, answer, "
+                "SELECT id, category, source_file, type, question, options, answer, "
                 "explanation, analysis, score, codeId "
                 "FROM questions"
             )

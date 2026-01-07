@@ -216,6 +216,7 @@ function createQuestionElement(question, index, options = {}) {
   const metaParts = [];
   if (question.type) metaParts.push(question.type);
   if (question.category) metaParts.push(question.category);
+  if (question.source_file) metaParts.push(question.source_file);
   if (typeof question.score === "number") metaParts.push(`${question.score} 分`);
   metaSpan.textContent = metaParts.join(" | ");
 
@@ -549,6 +550,7 @@ function initControls() {
   }
 
   loadCategories();
+  loadSourceFiles();
   loadTypes();
 }
 
@@ -613,6 +615,37 @@ async function loadCategories() {
   }
 }
 
+async function loadSourceFiles() {
+  const select = document.getElementById("sourceFileSelect");
+  const status = document.getElementById("statusMessage");
+
+  if (!select) return;
+
+  try {
+    status.textContent = "正在加载来源文件...";
+    const resp = await fetch("/api/source_files");
+    if (!resp.ok) throw new Error("加载来源文件失败");
+    const data = await resp.json();
+    const sourceFiles = data.source_files || [];
+
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
+
+    sourceFiles.forEach((s) => {
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      select.appendChild(opt);
+    });
+
+    status.textContent = `来源文件加载完成，共 ${sourceFiles.length} 个。`;
+  } catch (e) {
+    status.textContent = "加载来源文件失败，请检查后台服务。";
+    console.error(e);
+  }
+}
+
 async function loadTypes() {
   const select = document.getElementById("typeSelect");
   const status = document.getElementById("statusMessage");
@@ -647,6 +680,8 @@ async function loadTypes() {
 async function handleStart() {
   const mode = document.getElementById("modeSelect").value;
   const category = document.getElementById("categorySelect").value;
+  const sourceFileSelect = document.getElementById("sourceFileSelect");
+  const sourceFile = sourceFileSelect ? sourceFileSelect.value : "";
   const qtype = document.getElementById("typeSelect")
     ? document.getElementById("typeSelect").value
     : "";
@@ -694,6 +729,7 @@ async function handleStart() {
     params.set("count", String(count));
   }
   if (category) params.set("category", category);
+  if (sourceFile) params.set("source_file", sourceFile);
   if (qtype) params.set("qtype", qtype);
 
   try {
