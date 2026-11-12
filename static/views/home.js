@@ -83,7 +83,7 @@ async function showResumeBanner(box, navigate) {
 function renderSteps(box, options) {
   const picker = h("div");
   const batches = h("div");
-  const details = h("details", null, h("summary", null, "已有管理场次（受场次规则限制）"), batches);
+  const details = h("details", null, h("summary", null, "可参加的考试场次（受场次规则限制）"), batches);
   details.addEventListener("toggle", () => {
     if (details.open) renderExamOptions(batches, options);
   });

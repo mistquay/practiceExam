@@ -98,6 +98,30 @@ def test_entry_module_relative_imports(client):
                          {"text/javascript", "application/javascript"})
 
 
+def test_person_authorization_ui_and_helpers_removed(client):
+    """检查实际发布的静态资源，而非仅检查导航配置分支。"""
+    assert client.get("/static/views/admin/authorizations.js").status_code == 404
+    for path in ("/static/views/admin/index.js", "/static/views/admin/users.js",
+                 "/static/api/admin.js", "/static/api/auth.js",
+                 "/static/state/session.js", "/static/views/wrong-book.js"):
+        source = assert_asset(client, path, {"text/javascript", "application/javascript"}).text
+        for obsolete in ("authorizations.js", "getAuthorization", "listAuthorizations",
+                         "createAuthorization", "revokeAuthorization", ".authorization",
+                         "授权", "/admin/auth"):
+            assert obsolete not in source, (path, obsolete)
+    users = client.get("/static/views/admin/users.js").text
+    assert 'title: "人员类别"' not in users
+    assert "人员类别由用户在练习或考试时自主选择" in users
+
+
+def test_legacy_authorization_api_is_deprecated(client):
+    paths = client.get("/openapi.json").json()["paths"]
+    for path, method in (("/api/admin/users/{user_id}/authorizations", "get"),
+                         ("/api/admin/authorizations", "post"),
+                         ("/api/admin/authorizations/{auth_id}/revoke", "post")):
+        assert paths[path][method]["deprecated"] is True
+
+
 def test_root_entry_and_api_keep_priority(client):
     assert client.get("/index.html").content == client.get("/").content
     response = client.get("/api/auth/me")

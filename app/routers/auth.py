@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import sqlite3
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from starlette.concurrency import run_in_threadpool
+
+from app.services import registration
 
 from app.config import COOKIE_NAME, COOKIE_SECURE, SESSION_TTL_SECONDS
 from app.schemas import LoginIn
@@ -12,6 +15,40 @@ from app.services.errors import unauthorized
 from .deps import current_user, get_conn
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+
+def registration_ip(request: Request) -> str:
+    # 只使用 ASGI 的对端地址；不自行信任 X-Forwarded-For。
+    return request.client.host if request.client else 'unknown'
+
+
+@router.get('/captcha')
+def captcha(request: Request, replace: str | None = None):
+    if replace is not None and len(replace) > 128:
+        raise HTTPException(400, '验证码标识无效', headers={'Cache-Control': 'no-store'})
+    challenge_id, image = registration.guard.issue(registration_ip(request), replace)
+    return Response(image, media_type='image/png', headers={
+        'X-Captcha-ID': challenge_id, 'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff',
+    })
+
+
+@router.post('/register', status_code=201)
+async def register(request: Request, response: Response, conn: sqlite3.Connection = Depends(get_conn)):
+    import json
+
+    response.headers['Cache-Control'] = 'no-store'
+    registration.guard.rate(registration_ip(request), 'register')
+    raw = bytearray()
+    async for chunk in request.stream():
+        if len(raw) + len(chunk) > 4096:
+            raise HTTPException(413, '注册表单过大')
+        raw.extend(chunk)
+    try:
+        data = json.loads(raw)
+    except (ValueError, UnicodeDecodeError, RecursionError):
+        raise HTTPException(400, '注册表单格式错误') from None
+    return await run_in_threadpool(registration.register, conn, registration_ip(request), data)
 
 
 @router.post("/login")
@@ -40,5 +77,5 @@ def logout(request: Request, response: Response, conn: sqlite3.Connection = Depe
 
 @router.get("/me")
 def me(user: sqlite3.Row = Depends(current_user), conn: sqlite3.Connection = Depends(get_conn)):
-    """返回当前有效授权（人员类别 / 专业 / 生效期 / 依据 / 审批人），不是账号静态字段。"""
+    """返回登录账号与角色；authorization 为 deprecated 历史兼容字段，非登录或考试前提。"""
     return auth_service.user_dto(conn, user)

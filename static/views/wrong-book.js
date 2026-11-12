@@ -2,7 +2,6 @@
 import { listWrong, removeWrong, clearWrong } from "../api/records.js";
 import { listOf } from "../api/http.js";
 import { getSelection } from "../state/selection.js";
-import { getAuthorization } from "../state/session.js";
 import { h, mount, loading, errorBox, fmtDateTime } from "../components/dom.js";
 import { dataTable } from "../components/table.js";
 import { toast, toastError } from "../components/toast.js";
@@ -19,10 +18,9 @@ export async function render(view, { navigate }) {
       navigate("/");
       return;
     }
-    const auth = getAuthorization();
     const q = new URLSearchParams({
       bank: bankId,
-      person: (auth && auth.person_category) || "",
+      person: "",
       specialty: specialtyCode,
       order: "random",
       source: "wrong",

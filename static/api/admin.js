@@ -13,13 +13,6 @@ export async function listUsers(q) {
 export const resetPassword = (userId) => post(`/api/admin/users/${userId}/reset-password`);
 export const setUserActive = (userId, active) => patch(`/api/admin/users/${userId}`, { active });
 
-// 授权（人员类别，带生效期与依据）
-export async function listAuthorizations(userId) {
-  return listOf(await get(`/api/admin/users/${userId}/authorizations`), "authorizations");
-}
-export const createAuthorization = (payload) => post("/api/admin/authorizations", payload);
-export const revokeAuthorization = (authId) => post(`/api/admin/authorizations/${authId}/revoke`);
-
 // 题库版本
 export async function listBankVersions() {
   return listOf(await get("/api/admin/banks"), "banks");

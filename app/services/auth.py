@@ -1,4 +1,4 @@
-"""用户名 + bcrypt 密码 + HttpOnly Cookie Session；当前有效授权查询。"""
+"""用户名 + bcrypt 密码 + HttpOnly Cookie Session；保留 deprecated 历史人员授权查询。"""
 from __future__ import annotations
 
 import secrets
@@ -67,13 +67,20 @@ def login(conn: sqlite3.Connection, employee_no: str, password: str) -> sqlite3.
     row = conn.execute(
         "SELECT * FROM users WHERE employee_no = ? AND active = 1", (employee_no.strip(),)
     ).fetchone()
+    if row is None:
+        # 自助注册统一小写；既有导入账号仍优先精确匹配，不改其大小写语义。
+        row = conn.execute(
+            "SELECT u.* FROM users u WHERE u.employee_no = ? AND u.active = 1 "
+            "AND EXISTS (SELECT 1 FROM audit_logs a WHERE a.action='user.register' "
+            "AND a.target = 'users:' || u.id)", (employee_no.strip().lower(),)
+        ).fetchone()
     if row is None or not verify_password(password, row["password_hash"]):
         return None
     return row
 
 
 def authorization_at(conn: sqlite3.Connection, user_id: int, at=None) -> sqlite3.Row | None:
-    """取 `at` 时点生效的最新一条授权；带生效期、依据与审批人。"""
+    """Deprecated：供旧 API/历史记录兼容；不作为登录、练习或考试的权限依据。"""
     moment = at or utcnow()
     rows = conn.execute(
         "SELECT a.*, s.name AS specialty_name FROM person_authorizations a "
@@ -116,7 +123,7 @@ def user_dto(conn: sqlite3.Connection, row: sqlite3.Row) -> dict:
         "team": row["team"],
         "active": bool(row["active"]),
         "must_change_password": bool(row["must_change_password"]),
-        # 当前有效授权（不是账号上的静态字段）
+        # Deprecated 历史兼容字段；新界面不依赖，不参与登录/练习/考试鉴权。
         "authorization": authorization_dto(auth),
     }
 

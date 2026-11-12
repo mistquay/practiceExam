@@ -1,7 +1,8 @@
 // 入口：hash 路由 + 会话守卫。视图按需动态加载（原生 ESM，无构建链）。
 import { onUnauthorized } from "./api/http.js";
 import * as authApi from "./api/auth.js";
-import { loadSession, clearSession, getUser, isAdmin } from "./state/session.js";
+import { loadSession, clearSession, getUser } from "./state/session.js";
+import { canAccess } from "./route-access.js";
 import { resetSelection } from "./state/selection.js";
 import { clearAllDrafts } from "./state/exam-draft.js";
 import { h, mount, errorBox, loading } from "./components/dom.js";
@@ -9,6 +10,7 @@ import { toastError } from "./components/toast.js";
 
 const routes = [
   { pattern: "/login", load: () => import("./views/login.js"), public: true },
+  { pattern: "/register", load: () => import("./views/register.js"), public: true },
   { pattern: "/", load: () => import("./views/home.js") },
   { pattern: "/practice", load: () => import("./views/practice.js") },
   { pattern: "/exam/:id", load: () => import("./views/exam.js") },
@@ -25,6 +27,7 @@ const userEl = document.getElementById("user-info");
 
 let cleanup = null;
 let sessionReady = false;
+let renderRevision = 0;
 
 export function navigate(path) {
   if (location.hash === `#${path}`) render();
@@ -56,9 +59,15 @@ function match(path) {
 }
 
 async function ensureSession() {
-  if (sessionReady) return true;
+  const previousUser = getUser();
+  sessionReady = false;
   try {
-    await loadSession();
+    const user = await loadSession();
+    if (!user) return false;
+    if (previousUser && (previousUser.id !== user.id || previousUser.role !== user.role)) {
+      resetSelection();
+      clearAllDrafts();
+    }
     sessionReady = true;
   } catch (err) {
     if (err.status !== 401) toastError(err);
@@ -81,10 +90,10 @@ function renderChrome() {
     ["/records", "练习记录"],
     ["/history", "考试记录"],
   ];
-  if (isAdmin()) links.push(["/admin", "管理"]);
+  links.push(["/admin", "管理"]);
   mount(
     navEl,
-    links.map(([href, text]) =>
+    links.filter(([href]) => canAccess(match(href)?.route, user)).map(([href, text]) =>
       h(
         "a",
         { href: `#${href}`, class: (href === "/" ? path === "/" : path.startsWith(href)) ? "active" : null },
@@ -100,6 +109,7 @@ function renderChrome() {
 }
 
 async function logout() {
+  resetLocalState();
   try {
     await authApi.logout();
   } catch (err) {
@@ -110,13 +120,22 @@ async function logout() {
 }
 
 function resetLocalState() {
+  renderRevision++;
   clearSession();
+  mount(root);
+  mount(navEl);
+  mount(userEl);
   resetSelection();
   clearAllDrafts();
   sessionReady = false;
 }
 
 async function render() {
+  const revision = ++renderRevision;
+  // 会话未确认时立即移除旧页面/导航，尤其不能保留上一账号的管理界面。
+  mount(root, loading());
+  mount(navEl);
+  mount(userEl);
   if (typeof cleanup === "function") cleanup();
   cleanup = null;
 
@@ -128,15 +147,25 @@ async function render() {
   }
   const { route, params } = found;
 
-  if (!route.public && !(await ensureSession())) {
-    const redirect = encodeURIComponent(location.hash.replace(/^#/, ""));
-    location.hash = `/login?redirect=${redirect}`;
-    return;
+  if (route.public) {
+    clearSession();
+    resetSelection();
+    clearAllDrafts();
+    sessionReady = false;
+  } else {
+    const ready = await ensureSession();
+    if (revision !== renderRevision) return;
+    if (!ready) {
+      resetLocalState();
+      const redirect = encodeURIComponent(location.hash.replace(/^#/, ""));
+      location.hash = `/login?redirect=${redirect}`;
+      return;
+    }
   }
   renderChrome();
 
-  if (route.admin && !isAdmin()) {
-    mount(root, errorBox("无权限：仅管理员可访问"));
+  if (!canAccess(route, getUser())) {
+    mount(root, errorBox("无权限：仅管理员可访问"), h("a", { href: "#/", class: "btn btn-primary" }, "返回首页"));
     return;
   }
 
@@ -146,8 +175,11 @@ async function render() {
   view.appendChild(loading());
   try {
     const mod = await route.load();
+    if (revision !== renderRevision) return;
     view.replaceChildren();
-    cleanup = await mod.render(view, { params, query, navigate, onLogin: handleLogin });
+    const dispose = await mod.render(view, { params, query, navigate, onLogin: handleLogin });
+    if (revision === renderRevision) cleanup = dispose;
+    else if (typeof dispose === "function") dispose();
   } catch (err) {
     mount(view, errorBox(err));
   }

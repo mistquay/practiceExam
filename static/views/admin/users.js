@@ -4,7 +4,7 @@ import { h, mount, loading, errorBox } from "../../components/dom.js";
 import { dataTable } from "../../components/table.js";
 import { toast, toastError } from "../../components/toast.js";
 
-export async function render(view, { navigate }) {
+export async function render(view) {
   const file = h("input", { type: "file", accept: ".csv,text/csv", class: "input" });
   const importBtn = h("button", { class: "btn btn-primary" }, "导入");
   const importResult = h("div");
@@ -76,7 +76,6 @@ export async function render(view, { navigate }) {
             { title: "姓名", key: "name" },
             { title: "单位/班组", key: "team" },
             { title: "角色", render: (u) => (u.role === "admin" ? "管理员" : "考生") },
-            { title: "人员类别", render: (u) => (u.authorization && u.authorization.person_category) || u.person_category || "—" },
             { title: "状态", render: (u) => (u.active === false ? h("span", { class: "badge badge-bad" }, "停用") : "正常") },
             {
               title: "操作",
@@ -84,7 +83,6 @@ export async function render(view, { navigate }) {
                 h(
                   "div",
                   { class: "actions-inline" },
-                  h("button", { class: "btn btn-ghost btn-sm", onclick: () => navigate(`/admin/auth?user=${u.id}`) }, "授权"),
                   h("button", { class: "btn btn-ghost btn-sm", onclick: () => onReset(u) }, "重置密码"),
                   h("button", { class: "btn btn-ghost btn-sm", onclick: () => onToggle(u) }, u.active === false ? "启用" : "停用")
                 ),
@@ -108,7 +106,7 @@ export async function render(view, { navigate }) {
       h(
         "p",
         { class: "hint" },
-        "UTF-8 编码，首行为表头：employee_no,name,team,role,initial_password。用户名唯一；已存在的用户名按更新处理；role 取 admin / examinee。人员类别请在「授权」页单独录入。"
+        "UTF-8 编码，首行为表头：employee_no,name,team,role,initial_password。用户名唯一；已存在的用户名按更新处理；role 取 admin / examinee。人员类别由用户在练习或考试时自主选择，不作为账号固定身份。"
       ),
       h("div", { class: "row-inline" }, file, importBtn),
       importResult

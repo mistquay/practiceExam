@@ -11,7 +11,8 @@ export function render(view, { query, navigate, onLogin }) {
     autocomplete: "current-password",
     required: true,
   });
-  const message = h("div", { class: "form-message" });
+  employeeNo.value = query.get("username") || "";
+  const message = h("div", { class: "form-message", role: "alert" });
   const submitBtn = h("button", { type: "submit", class: "btn btn-primary btn-block" }, "登录");
 
   async function onSubmit(event) {
@@ -37,6 +38,7 @@ export function render(view, { query, navigate, onLogin }) {
       "section",
       { class: "card login-card" },
       h("h1", { class: "card-title" }, "登录"),
+      query.get("registered") === "1" ? h("p", { class: "alert alert-success", role: "status" }, "注册成功，请使用新账号登录。") : null,
       h(
         "form",
         { class: "form", onsubmit: onSubmit },
@@ -45,7 +47,8 @@ export function render(view, { query, navigate, onLogin }) {
         message,
         submitBtn
       ),
-      h("p", { class: "hint" }, "账号由管理员统一导入，如忘记密码请联系管理员重置。")
+      h("p", { class: "hint" }, "没有账号？", h("a", { href: "#/register" }, "注册账号")),
+      h("p", { class: "hint" }, "也可使用管理员导入的账号；忘记密码请联系管理员重置。")
     )
   );
   employeeNo.focus();

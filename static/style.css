@@ -596,6 +596,23 @@ select.input {
   box-shadow: var(--shadow-lg);
 }
 
+.captcha-refresh {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.4rem;
+}
+
+.captcha-refresh img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
 /* ---------- 提示 / 徽标 / toast ---------- */
 
 .alert {

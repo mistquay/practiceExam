@@ -4,8 +4,9 @@
 """
 from __future__ import annotations
 
+import asyncio
 import json
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
@@ -14,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import STATIC_DIR
 from app.routers import admin, auth, banks, exams, practice, records, reports, self_tests
 from app.services.bootstrap import bootstrap
+from app.services.registration import cleanup_loop
 from app.services.dto import forbidden_keys, forbidden_tokens
 from app.services.errors import ApiError
 from app.services.util import now_iso
@@ -22,7 +24,13 @@ from app.services.util import now_iso
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     bootstrap()
-    yield
+    cleanup_task = asyncio.create_task(cleanup_loop())
+    try:
+        yield
+    finally:
+        cleanup_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await cleanup_task
 
 
 app = FastAPI(title="题库练习与考试系统", version="1.0", lifespan=lifespan)

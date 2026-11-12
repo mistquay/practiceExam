@@ -6,5 +6,5 @@ export const login = (employeeNo, password) =>
 
 export const logout = () => post("/api/auth/logout");
 
-/** 返回当前用户及其「当前有效授权」（人员类别 / 专业 / 生效期）。 */
+/** 返回当前登录账号及角色；人员类别由用户在练习/考试时自主选择。 */
 export const me = () => get("/api/auth/me");

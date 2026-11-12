@@ -38,19 +38,20 @@ def set_user_active(user_id: int, body: UserPatchIn, admin=Depends(admin_user),
     return admin_service.set_user_active(conn, actor_of(admin), user_id, body.active)
 
 
-@router.get("/users/{user_id}/authorizations")
+# Deprecated：仅兼容旧客户端与历史记录，无新管理界面依赖；仍要求管理员角色。
+@router.get("/users/{user_id}/authorizations", deprecated=True)
 def list_authorizations(user_id: int, admin=Depends(admin_user),
                         conn: sqlite3.Connection = Depends(get_conn)):
     return {"authorizations": admin_service.list_authorizations(conn, user_id)}
 
 
-@router.post("/authorizations")
+@router.post("/authorizations", deprecated=True)
 def create_authorization(body: AuthorizationIn, admin=Depends(admin_user),
                          conn: sqlite3.Connection = Depends(get_conn)):
     return admin_service.create_authorization(conn, actor_of(admin), body)
 
 
-@router.post("/authorizations/{auth_id}/revoke")
+@router.post("/authorizations/{auth_id}/revoke", deprecated=True)
 def revoke_authorization(auth_id: int, admin=Depends(admin_user),
                          conn: sqlite3.Connection = Depends(get_conn)):
     return admin_service.revoke_authorization(conn, actor_of(admin), auth_id)
