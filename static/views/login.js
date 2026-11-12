@@ -1,4 +1,4 @@
-// 登录页：工号 + 密码
+// 登录页：用户名 + 密码
 import * as authApi from "../api/auth.js";
 import { h, mount } from "../components/dom.js";
 
@@ -24,7 +24,7 @@ export function render(view, { query, navigate, onLogin }) {
       const redirect = query.get("redirect");
       navigate(redirect && !redirect.startsWith("/login") ? redirect : "/");
     } catch (err) {
-      message.textContent = err.status === 401 ? "工号或密码错误" : err.message;
+      message.textContent = err.status === 401 ? "用户名或密码错误" : err.message;
       password.value = "";
     } finally {
       submitBtn.disabled = false;
@@ -40,7 +40,7 @@ export function render(view, { query, navigate, onLogin }) {
       h(
         "form",
         { class: "form", onsubmit: onSubmit },
-        h("label", { class: "field" }, h("span", null, "工号"), employeeNo),
+        h("label", { class: "field" }, h("span", null, "用户名"), employeeNo),
         h("label", { class: "field" }, h("span", null, "密码"), password),
         message,
         submitBtn

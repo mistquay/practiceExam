@@ -76,6 +76,11 @@ def load(db_path: Path, *, version: str, name: str, source_label: str, scan: Sca
             stats["questions_inserted"] = conn.total_changes - before
             _sync_versions(conn, bank_id, questions, file_ids, now, stats)
             _sync_tags(conn, bank_id, questions, stats)
+            conn.execute("DELETE FROM question_sources WHERE bank_version_id = ?", (bank_id,))
+            source_rows = {(bank_id, q.stable_id, file_ids[(r.rel_path, r.sheet)])
+                           for q in questions.values() for r in q.records}
+            conn.executemany("INSERT INTO question_sources VALUES (?, ?, ?)", sorted(source_rows))
+            stats["question_sources"] = len(source_rows)
             if templates:
                 _upsert_templates(conn, bank_id, templates, now, stats)
             conn.execute(

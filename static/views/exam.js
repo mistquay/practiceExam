@@ -1,6 +1,7 @@
 // 考试视图：整卷作答 → 交卷 → 成绩。
 // 约束：只使用考试 DTO（题干 / 选项 / 分值），不持有、不渲染任何判分依据；
 // 计时只认服务端 deadline_at + server_now，断线重连不重置剩余时间；判分完全在服务端。
+import { renderSelfReview } from "./self-test-review.js";
 import { getAttempt, submitExam } from "../api/exam.js";
 import { loadDraft, saveDraft, clearDraft } from "../state/exam-draft.js";
 import { h, mount, loading, errorBox, empty } from "../components/dom.js";
@@ -62,6 +63,7 @@ function runPaper(view, attemptId, attempt) {
       countEl,
       submitBtn
     ),
+    attempt.exam_mode === "self_service" ? h("p", { class: "alert alert-warning" }, attempt.notice) : null,
     statusEl,
     h("section", { class: "card" }, navEl, paperEl)
   );
@@ -210,6 +212,7 @@ function renderResult(view, data, questionsIn, localChoices) {
     "section",
     { class: "card result-summary" },
     h("h1", { class: "card-title" }, data.name || "考试成绩"),
+    data.exam_mode === "self_service" ? h("p", { class: "alert alert-warning" }, data.notice) : null,
     h(
       "div",
       { class: "score-line" },
@@ -224,9 +227,10 @@ function renderResult(view, data, questionsIn, localChoices) {
         .filter(Boolean)
         .join(" · ")
     ),
-    pending > 0 ? h("div", { class: "alert alert-warning" }, `有 ${pending} 道简答题待人工阅卷，最终成绩以阅卷后为准。`) : null
+    pending > 0 ? h("div", { class: "alert alert-warning" }, data.exam_mode === "self_service" ? `待自评：${pending} 道简答未确认；客观题 ${res.objective_score} / ${res.objective_total} 分。此时尚无最终总成绩。` : `有 ${pending} 道简答题待人工阅卷，最终成绩以阅卷后为准。`) : null
   );
 
+  const reviewBox = h("section", { class: "card" });
   const navEl = h("div", { class: "question-nav" });
   const listEl = h("div");
   const filterBtn = h("button", { class: "btn btn-outline btn-sm" }, "只看错题");
@@ -240,7 +244,9 @@ function renderResult(view, data, questionsIn, localChoices) {
     const it = itemOf.get(q.stable_id) || {};
     const card = renderQuestionCard(q, i, { choice: choices[q.stable_id] || "", disabled: true });
     markCard(card, isLost(it.result) ? "wrong" : it.result === "right" || it.result === "pending" ? it.result : null);
-    const label = { right: "得分", wrong: "答错", pending: "待人工阅卷" }[it.result] || (it.result ? "未作答" : "未评分");
+    const selfShort = data.exam_mode === "self_service" && q.qtype === "简答题";
+    const label = selfShort ? (it.result === "pending" ? "待本人自评" : it.result === "blank" ? "空白未答" : "本人自评得分")
+      : { right: "得分", wrong: "答错", pending: "待人工阅卷" }[it.result] || (it.result ? "未作答" : "未评分");
     mount(
       card.querySelector(".question-feedback"),
       h("div", null, h("strong", null, `${label}：`), `${it.earned ?? 0} / ${it.score ?? q.score ?? "—"} 分`),
@@ -287,6 +293,7 @@ function renderResult(view, data, questionsIn, localChoices) {
   mount(
     view,
     summary,
+    data.exam_mode === "self_service" ? reviewBox : null,
     h(
       "section",
       { class: "card" },
@@ -302,4 +309,8 @@ function renderResult(view, data, questionsIn, localChoices) {
     )
   );
   drawList();
+  if (data.exam_mode === "self_service") renderSelfReview(reviewBox, data.attempt_id || data.id, async () => {
+    const latest = await getAttempt(data.attempt_id || data.id);
+    renderResult(view, latest, latest.questions || [], null);
+  });
 }

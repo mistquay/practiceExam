@@ -26,4 +26,4 @@ def conflict(detail: str = "操作冲突") -> ApiError:
 
 
 def bad_request(detail: str = "参数错误") -> ApiError:
-    return ApiError(422, detail)
+    return ApiError(400, detail)

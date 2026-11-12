@@ -24,7 +24,7 @@ def clone_db(destination: Path) -> Path:
     if not SOURCE_DB.is_file():
         raise FileNotFoundError(f"缺少题库数据库 {SOURCE_DB}")
     destination.parent.mkdir(parents=True, exist_ok=True)
-    src = sqlite3.connect(SOURCE_DB)
+    src = sqlite3.connect(SOURCE_DB.as_uri() + "?mode=ro", uri=True)
     dst = sqlite3.connect(destination)
     try:
         src.backup(dst)

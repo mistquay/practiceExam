@@ -19,7 +19,7 @@ def login(body: LoginIn, response: Response, conn: sqlite3.Connection = Depends(
     with write_tx(conn):
         user = auth_service.login(conn, body.employee_no, body.password)
         if user is None:
-            raise unauthorized("工号或密码错误")
+            raise unauthorized("用户名或密码错误")
         token, _expires = auth_service.create_session(conn, user["id"])
     response.set_cookie(
         COOKIE_NAME, token, max_age=SESSION_TTL_SECONDS, httponly=True,

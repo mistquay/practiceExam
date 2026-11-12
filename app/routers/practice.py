@@ -11,24 +11,31 @@ from .deps import current_user, get_conn
 router = APIRouter(prefix="/api/practice", tags=["practice"])
 
 
-@router.get("/questions")
-def questions(
+def practice_filters(
     bank_id: int | None = None,
     person_category: str | None = None,
     specialty_code: str | None = None,
     qtype: str | None = None,
-    count: int = 20,
     order: str = "sequence",
     source: str = "all",
-    user=Depends(current_user),
-    conn: sqlite3.Connection = Depends(get_conn),
+    tags: list[str] = Query(default=[]),
+    source_file_ids: list[int] = Query(default=[]),
 ):
-    # 练习 DTO 允许含参考答案与解析；与 /api/exams/* 的白名单 DTO 完全分离
-    items = practice_service.questions(
-        conn, user, bank_id=bank_id, person_category=person_category,
-        specialty_code=specialty_code, qtype=qtype, count=count, order=order, source=source,
-    )
-    return {"questions": items, "total": len(items)}
+    return dict(bank_id=bank_id, person_category=person_category, specialty_code=specialty_code,
+                qtype=qtype, order=order, source=source, tags=tags, source_file_ids=source_file_ids)
+
+
+@router.get("/filters")
+def filters(options=Depends(practice_filters), user=Depends(current_user),
+            conn: sqlite3.Connection = Depends(get_conn)):
+    return practice_service.filters(conn, user, **options)
+
+
+@router.get("/questions")
+def questions(count: int = Query(default=20, ge=1, le=200), options=Depends(practice_filters),
+              user=Depends(current_user), conn: sqlite3.Connection = Depends(get_conn)):
+    # 练习 DTO 可含参考答案与解析；考试仍使用独立白名单 DTO。
+    return practice_service.questions(conn, user, count=count, **options)
 
 
 @router.post("/submit")

@@ -13,11 +13,19 @@ router = APIRouter(prefix="/api/exams", tags=["exams"])
 
 @router.get("/available")
 def available(bank_id: int | None = None, specialty_code: str | None = None,
-              paper_type: str | None = None, user=Depends(current_user),
+              paper_type: str | None = None, person_category: str | None = None, user=Depends(current_user),
               conn: sqlite3.Connection = Depends(get_conn)):
     batches = exam_service.available(conn, user, bank_id=bank_id,
-                                     specialty_code=specialty_code, paper_type=paper_type)
+                                     specialty_code=specialty_code, paper_type=paper_type,
+                                     person_category=person_category)
     return {"batches": batches, "items": batches}
+
+
+@router.get("/self-service/templates")
+def self_service_templates(bank_id: int | None = None, person_category: str | None = None,
+                           user=Depends(current_user), conn: sqlite3.Connection = Depends(get_conn)):
+    items = exam_service.self_service_templates(conn, bank_id=bank_id, person_category=person_category)
+    return {"items": items}
 
 
 @router.post("/start")

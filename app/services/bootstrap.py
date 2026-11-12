@@ -120,6 +120,8 @@ def bootstrap() -> dict:
     conn = connect()
     try:
         with write_tx(conn):
+            from app.services.question_sources import seed_legacy_sources
+            seed_legacy_sources(conn)
             specialties = _sync_specialties(conn)
             templates = _sync_templates(conn, at)
             admin_id = ensure_admin(conn, at)

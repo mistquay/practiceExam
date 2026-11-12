@@ -41,7 +41,7 @@ VERSION = "2026-11"
 pytestmark = pytest.mark.skipif(not SOURCE.is_dir(), reason="缺少资料目录 2026-11-12/")
 
 ALL_TABLES = {
-    "bank_versions", "source_files", "questions", "question_versions", "tags", "question_tags", "specialties",
+    "bank_versions", "source_files", "question_sources", "questions", "question_versions", "tags", "question_tags", "specialties",
     "person_authorizations", "users", "exam_batches", "paper_templates", "papers", "paper_questions", "attempts",
     "attempt_answers", "grading_reviews", "practice_records", "wrong_book", "audit_logs",
 }
@@ -430,18 +430,18 @@ def test_reload_idempotent_and_answer_correction(prep, tmp_path):
 
 def test_migration_upgrade_downgrade_upgrade(tmp_path):
     db = tmp_path / "m.db"
-    assert upgrade(db) == ["0001"]
+    assert upgrade(db) == ["0001", "0002", "0003", "0004"]
     conn = connect(db)
     tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
     conn.close()
     assert ALL_TABLES <= tables
-    assert downgrade(db, "0000") == ["0001"]
+    assert downgrade(db, "0000") == ["0004", "0003", "0002", "0001"]
     conn = connect(db)
     tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
     conn.close()
     assert not ALL_TABLES & tables
     assert list((tmp_path / "backups").glob("m.rollback-from-0001.*.db")), "回滚前当前库必须先归档"
-    assert upgrade(db) == ["0001"]
+    assert upgrade(db) == ["0001", "0002", "0003", "0004"]
 
 
 def test_no_drop_or_to_sql_replace():
@@ -451,3 +451,18 @@ def test_no_drop_or_to_sql_replace():
         text = p.read_text(encoding="utf-8")
         assert not re.search(r"\bDROP\b", text, re.I), p
         assert "to_sql" not in text, p
+
+
+def test_all_source_relationships_are_preserved(prep, db):
+    bank = _bank_id(db, VERSION)
+    files = {(r["rel_path"], r["sheet"]): r["id"] for r in db.execute(
+        "SELECT * FROM source_files WHERE bank_version_id = ?", (bank,))}
+    expected = {(r.stable_id, files[(r.rel_path, r.sheet)]) for r in prep.scan.records}
+    actual = {(r[0], r[1]) for r in db.execute(
+        "SELECT stable_id, source_file_id FROM question_sources WHERE bank_version_id = ?", (bank,))}
+    assert actual == expected
+    fixture = json.loads((REPO_ROOT / "fixtures/question_sources_2026-11.json").read_text(encoding="utf-8"))
+    packaged = {(sid, files[(s["path"], s["sheet"])]) for s in fixture["sources"] for sid in s["ids"]}
+    assert packaged == expected
+    md5 = {f.rel_path: f.md5 for f in prep.scan.files}
+    assert all(s["md5"] == md5[s["path"]] for s in fixture["sources"])

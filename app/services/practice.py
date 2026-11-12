@@ -1,7 +1,6 @@
-"""练习专用服务：独立 DTO（可含参考答案/解析）+ 独立题目池，绝不写 attempts。
+"""登录即可练习全部 active 题库；参考答案仅进入练习 DTO，绝不写 attempts。
 
-池隔离：练习池排除「考试严格题目池」(person_scope ∩ 通用/自选专业)，
-因此练习接口无法批量取到考试卷可能使用的题目答案。
+练习与考试隔离的是权限、DTO 和作答记录，不再通过隐藏考试池限制练习。
 """
 from __future__ import annotations
 
@@ -10,15 +9,13 @@ import sqlite3
 from typing import Any
 
 from app.config import MAX_PRACTICE_COUNT
-from app.models import QTYPE_SHORT
 from app.rules.scoring import grade
-from app.rules.templates import required_19
 from app.services.errors import bad_request, not_found
 from app.services.util import now_iso
 
 PRACTICE_DTO_KEYS = (
     "stable_id", "bank_id", "qtype", "stem", "options", "score", "answer",
-    "analysis", "basis", "outline_l1", "outline_l2", "specialty_name", "is_required",
+    "analysis", "basis", "outline_l1", "outline_l2", "specialty_name", "is_required", "is_protected",
 )
 
 
@@ -43,83 +40,40 @@ def active_bank_id(conn: sqlite3.Connection, bank_id: Any = None) -> int:
     return int(row["id"])
 
 
-def exam_pool_ids(conn: sqlite3.Connection, bank_version_id: int, person_category: str | None) -> set[str]:
-    sql = """
-        SELECT qv.stable_id,
-               MAX(CASE WHEN qt.tag_type = 'person_scope' AND qt.tag_value = ? THEN 1 ELSE 0 END) AS p,
-               MAX(CASE WHEN qt.tag_type = 'specialty' AND qt.tag_value IN ('pd_general', 'pd_live') THEN 1 ELSE 0 END) AS s
-        FROM question_versions qv
-        JOIN question_tags qt ON qt.bank_version_id = qv.bank_version_id AND qt.stable_id = qv.stable_id
-        WHERE qv.bank_version_id = ? AND qv.retired = 0
-        GROUP BY qv.stable_id
-        HAVING p = 1 AND s = 1
-    """
-    return {r["stable_id"] for r in conn.execute(sql, (person_category or "", bank_version_id)).fetchall()}
-
-
-def questions(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, bank_id: Any = None,
-              person_category: str | None = None, specialty_code: str | None = None,
-              qtype: str | None = None, count: Any = 20, order: str = "sequence",
-              source: str = "all") -> list[dict[str, Any]]:
+def filters(conn: sqlite3.Connection, user, *, bank_id=None, **kwargs) -> dict:
+    from app.services.practice_selection import selection, matching_count, tag_facets, source_facets
     bank = active_bank_id(conn, bank_id)
+    sql, params = selection(conn, user, bank=bank, **kwargs)
+    return {"bank_id": bank, "tags": tag_facets(conn, bank), "sources": source_facets(conn, bank),
+            "total": matching_count(conn, sql, params)}
+
+
+def questions(conn: sqlite3.Connection, user, *, bank_id=None, count: Any = 20,
+              order: str = "sequence", **kwargs) -> dict:
+    from app.services.practice_selection import selection, matching_count
+    bank = active_bank_id(conn, bank_id)
+    sql, params = selection(conn, user, bank=bank, order=order, **kwargs)
     try:
         limit = int(count)
     except (TypeError, ValueError):
-        limit = 20
-    limit = max(1, min(MAX_PRACTICE_COUNT, limit))
-    excluded = exam_pool_ids(conn, bank, person_category) | set(required_19())
-    if source == "wrong":
-        # 错题重练：本人在考试中答错、已出分的题可以回练（不再隔离，成绩已定）
-        excluded = set(required_19())
-    params: list[Any] = [bank]
-    sql = """
-        SELECT qv.*, sp.name AS specialty_name
-        FROM question_versions qv
-        LEFT JOIN question_tags qt ON qt.bank_version_id = qv.bank_version_id AND qt.stable_id = qv.stable_id
-        LEFT JOIN specialties sp ON sp.code = qt.tag_value AND qt.tag_type = 'specialty'
-        WHERE qv.bank_version_id = ? AND qv.retired = 0
-    """
-    def tag_exists(tag_type: str, value: str) -> str:
-        return ("EXISTS (SELECT 1 FROM question_tags t WHERE t.bank_version_id = qv.bank_version_id "
-                "AND t.stable_id = qv.stable_id AND t.tag_type = '" + tag_type + "' AND t.tag_value = ?)")
-
-    if specialty_code and person_category:
-        # 两个维度是「范围」不是「交集」：题目属于该专业或该人员公共题范围即可
-        sql += " AND (" + tag_exists("specialty", specialty_code) + " OR " + tag_exists("person_scope", person_category) + ")"
-        params.extend([specialty_code, person_category])
-    elif specialty_code:
-        sql += " AND " + tag_exists("specialty", specialty_code)
-        params.append(specialty_code)
-    elif person_category:
-        sql += " AND " + tag_exists("person_scope", person_category)
-        params.append(person_category)
-    if qtype:
-        sql += " AND qv.qtype = ?"
-        params.append(qtype)
-    if source == "wrong":
-        sql += (" AND qv.stable_id IN (SELECT stable_id FROM wrong_book WHERE user_id = ?)")
-        params.append(user["id"])
-    elif source == "unpracticed":
-        sql += (" AND qv.stable_id NOT IN (SELECT stable_id FROM practice_records WHERE user_id = ?)")
-        params.append(user["id"])
-    sql += " GROUP BY qv.id ORDER BY " + ("RANDOM()" if order == "random" else "qv.id")
-    rows = [dict(r) for r in conn.execute(sql, params).fetchall() if r["stable_id"] not in excluded]
+        raise bad_request("题目数量必须是整数")
+    if not 1 <= limit <= MAX_PRACTICE_COUNT:
+        raise bad_request(f"题目数量需为 1~{MAX_PRACTICE_COUNT} 的整数")
+    total = matching_count(conn, sql, params)
+    sort = "RANDOM()" if order == "random" else "qv.id"
+    # active stable_id 唯一，来源使用 EXISTS，避免 JOIN 放大和重复出题。
+    rows = conn.execute("SELECT qv.*" + sql + " ORDER BY " + sort + " LIMIT ?", (*params, limit)).fetchall()
     out = []
-    seen = set()
     for row in rows:
-        if row["stable_id"] in seen:
-            continue
-        seen.add(row["stable_id"])
         out.append({
             "stable_id": row["stable_id"], "bank_id": bank, "qtype": row["qtype"],
             "stem": row["stem"], "options": _loads(row["options"], {}),
             "score": row["score"], "answer": row["answer"], "analysis": row["analysis"],
             "basis": row["basis"], "outline_l1": row["outline_l1"], "outline_l2": row["outline_l2"],
-            "specialty_name": row["specialty_name"], "is_required": int(row["is_required"]),
+            "specialty_name": None, "is_required": int(row["is_required"]),
+            "is_protected": int(row["is_protected"]),
         })
-        if len(out) >= limit:
-            break
-    return out
+    return {"questions": out, "total": total, "returned": len(out)}
 
 
 def submit(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, bank_id: Any,

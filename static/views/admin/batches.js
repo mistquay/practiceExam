@@ -118,7 +118,7 @@ export async function render(view) {
     const endAt = h("input", { class: "input", type: "datetime-local", required: true });
     const maxAttempts = h("input", { class: "input", type: "number", min: 1, value: "1", required: true });
     const allowRetake = h("input", { type: "checkbox" });
-    const examinees = h("textarea", { class: "input", rows: 4, placeholder: "考生工号，每行一个或以逗号分隔；留空表示不限名单（以服务端规则为准）" });
+    const examinees = h("textarea", { class: "input", rows: 4, placeholder: "考生用户名，每行一个或以逗号分隔；留空表示不限名单（以服务端规则为准）" });
 
     async function onCreate(e) {
       e.preventDefault();

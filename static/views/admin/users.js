@@ -8,7 +8,7 @@ export async function render(view, { navigate }) {
   const file = h("input", { type: "file", accept: ".csv,text/csv", class: "input" });
   const importBtn = h("button", { class: "btn btn-primary" }, "导入");
   const importResult = h("div");
-  const keyword = h("input", { class: "input", placeholder: "工号 / 姓名" });
+  const keyword = h("input", { class: "input", placeholder: "用户名 / 姓名" });
   const listBox = h("div");
 
   importBtn.addEventListener("click", async () => {
@@ -72,7 +72,7 @@ export async function render(view, { navigate }) {
         listBox,
         dataTable(
           [
-            { title: "工号", key: "employee_no" },
+            { title: "用户名", key: "employee_no" },
             { title: "姓名", key: "name" },
             { title: "单位/班组", key: "team" },
             { title: "角色", render: (u) => (u.role === "admin" ? "管理员" : "考生") },
@@ -108,7 +108,7 @@ export async function render(view, { navigate }) {
       h(
         "p",
         { class: "hint" },
-        "UTF-8 编码，首行为表头：employee_no,name,team,role,initial_password。工号唯一；已存在的工号按更新处理；role 取 admin / examinee。人员类别请在「授权」页单独录入。"
+        "UTF-8 编码，首行为表头：employee_no,name,team,role,initial_password。用户名唯一；已存在的用户名按更新处理；role 取 admin / examinee。人员类别请在「授权」页单独录入。"
       ),
       h("div", { class: "row-inline" }, file, importBtn),
       importResult

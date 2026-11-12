@@ -6,6 +6,9 @@ import io
 import sqlite3
 from typing import Any
 
+from decimal import Decimal
+
+from app.rules.paper import read_snapshot
 from app.rules.templates import required_19
 from app.services import audit
 from app.services.auth import actor_of
@@ -14,18 +17,22 @@ from app.services.errors import bad_request, forbidden
 from app.services.util import fmt_num, now_iso
 
 EXPORT_FIELDS: list[tuple[str, str]] = [
-    ("employee_no", "工号"),
+    ("employee_no", "用户名"),
     ("name", "姓名"),
     ("team", "单位/班组"),
     ("person_category", "人员类别"),
     ("specialty_code", "专业"),
     ("bank_version", "题库版本"),
     ("template_code", "模板"),
+    ("exam_mode", "成绩类型"),
     ("batch_code", "场次"),
     ("attempt_id", "卷号"),
     ("started_at", "开始时间"),
     ("submitted_at", "交卷时间"),
     ("score", "得分"),
+    ("objective_score", "客观题得分"),
+    ("objective_total", "客观部分满分"),
+    ("self_score", "简答本人自评分（非正式）"),
     ("total_score", "总分"),
     ("pass_score", "及格线"),
     ("passed", "是否及格"),
@@ -83,24 +90,33 @@ def rows_for(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, batch_id: An
         manual = conn.execute(
             "SELECT COALESCE(SUM(score), 0) FROM grading_reviews WHERE attempt_id = ?", (a["id"],)
         ).fetchone()[0]
+        snaps = read_snapshot(conn, a["paper_id"])
+        objective = {s["stable_id"] for s in snaps if s["qtype"] != "简答题"}
+        objective_score = sum((Decimal(str(r["score"] or 0)) for r in ans if r["stable_id"] in objective), Decimal(0))
+        objective_total = sum((Decimal(str(s["score"])) for s in snaps if s["stable_id"] in objective), Decimal(0))
+        self_score = sum((Decimal(str(r[0] or 0)) for r in conn.execute(
+            "SELECT score FROM attempt_answers WHERE attempt_id=? AND graded_by='self'", (a["id"],))), Decimal(0))
         rows.append({
+            "objective_score": float(objective_score), "objective_total": float(objective_total),
+            "self_score": float(self_score) if a["exam_mode"] == "self_service" else "",
             "employee_no": a["employee_no"], "name": a["user_name"], "team": a["team"] or "",
             "person_category": a["person_category_snapshot"] or "",
             "specialty_code": a["specialty_snapshot"] or "", "bank_version": a["bank_version"],
             "template_code": a["template_code"], "batch_code": a["batch_code"] or "",
             "attempt_id": a["id"], "started_at": a["started_at"],
             "submitted_at": a["submitted_at"] or "",
-            "score": fmt_num(a["score"]), "total_score": fmt_num(a["paper_total"]),
-            "pass_score": fmt_num(a["pass_score"]),
+            "score": "" if a["exam_mode"] == "self_service" and a["status"] == "pending_review" else fmt_num(a["score"]), "total_score": fmt_num(a["paper_total"]),
+            "exam_mode": "自主模拟（非正式成绩）" if a["exam_mode"] == "self_service" else "管理场次",
+            "pass_score": fmt_num(a["pass_score_snapshot"] if a["pass_score_snapshot"] is not None else a["pass_score"]),
             "passed": "" if a["passed"] is None else ("是" if a["passed"] else "否"),
             "required_score": fmt_num(required_score), "manual_score": fmt_num(manual),
-            "status": a["status"],
+            "status": ("待自评" if a["status"] == "pending_review" else "自评/非正式" if a["status"] == "graded" else a["status"]) if a["exam_mode"] == "self_service" else a["status"],
         })
     return rows
 
 
 def pass_rate(rows: list[dict[str, Any]]) -> float | None:
-    graded = [r for r in rows if r["passed"] in ("是", "否")]
+    graded = [r for r in rows if r["passed"] in ("是", "否") and r.get("exam_mode") != "自主模拟（非正式成绩）"]
     if not graded:
         return None
     return round(sum(1 for r in graded if r["passed"] == "是") / len(graded), 6)
@@ -126,7 +142,7 @@ def export(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, batch_id: Any 
     if fmt == "json":
         from app.services.util import json_dumps
         payload = {"rows": rows, "total": len(rows), "pass_rate": pass_rate(rows),
-                   "graded_count": sum(1 for r in rows if r["passed"] in ("是", "否")),
-                   "passed_count": sum(1 for r in rows if r["passed"] == "是")}
+                   "graded_count": sum(1 for r in rows if r["passed"] in ("是", "否") and r.get("exam_mode") != "自主模拟（非正式成绩）"),
+                   "passed_count": sum(1 for r in rows if r["passed"] == "是" and r.get("exam_mode") != "自主模拟（非正式成绩）")}
         return json_dumps(payload).encode("utf-8"), "application/json; charset=utf-8"
     return csv_bytes(rows), "text/csv; charset=utf-8"

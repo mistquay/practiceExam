@@ -13,9 +13,13 @@ export async function fetchPracticeQuestions(p) {
     count: p.count,
     order: p.order,
     source: p.source,
+    tags: p.tags,
+    source_file_ids: p.sourceFileIds,
   });
   return listOf(data, "questions");
 }
+
+export const fetchPracticeFilters = (params) => get("/api/practice/filters", params);
 
 /** 服务端判分并写入练习记录 / 错题本。 */
 export const submitPractice = ({ bankId, stableId, userAnswer }) =>

@@ -325,7 +325,7 @@ def test_export_100_attempts_matches_db_aggregation_field_by_field(scenario):
     csv_r = scenario["admin"].get("/api/reports/export", params={"batch_id": batch, "format": "csv"})
     reader = list(csv.DictReader(io.StringIO(csv_r.content.decode("utf-8-sig"))))
     assert len(reader) == 100
-    assert reader[0]["工号"] == rows[0]["employee_no"]
+    assert reader[0]["用户名"] == rows[0]["employee_no"]
     assert reader[0]["得分"] == rows[0]["score"]
 
 
@@ -368,7 +368,7 @@ def test_migration_up_down_up_on_db_copy(tmp_path):
     """在 db 副本上正向 → 回滚 → 正向；回滚快照保留旧数据可查。"""
     db = tmp_path / "mig" / "roundtrip.db"
     db.parent.mkdir(parents=True, exist_ok=True)
-    assert upgrade(db) == ["0001"]
+    assert upgrade(db) == ["0001", "0002", "0003", "0004"]
     conn = sqlite3.connect(db)
     tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     assert "attempts" in tables and "schema_migrations" in tables
@@ -378,15 +378,16 @@ def test_migration_up_down_up_on_db_copy(tmp_path):
     conn.commit()
     conn.close()
 
-    assert downgrade(db) == ["0001"]
-    archive = sorted((db.parent / "backups").glob("roundtrip.rollback-from-0001.*.db"))
+    assert downgrade(db) == ["0004", "0003", "0002", "0001"]
+    # 第一轮回滚（最新迁移 0004）的归档才包含回滚前业务数据。
+    archive = sorted((db.parent / "backups").glob("roundtrip.rollback-from-0004.*.db"))
     assert archive, "回滚前必须 VACUUM INTO 归档"
     conn = sqlite3.connect(archive[-1])
     assert conn.execute("SELECT COUNT(*) FROM bank_versions WHERE code='legacy'").fetchone()[0] == 1
     assert conn.execute("SELECT after_value FROM audit_logs WHERE action='legacy.score'").fetchone()[0] == '{"score": 88}'
     conn.close()
 
-    assert upgrade(db) == ["0001"]
+    assert upgrade(db) == ["0001", "0002", "0003", "0004"]
     conn = sqlite3.connect(db)
     assert conn.execute("SELECT COUNT(*) FROM attempts").fetchone()[0] == 0
     assert conn.execute("SELECT COUNT(*) FROM bank_versions WHERE code='legacy'").fetchone()[0] == 0

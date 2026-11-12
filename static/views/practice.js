@@ -10,7 +10,7 @@ const AUTO_NEXT_MS = 600;
 
 export async function render(view, { query, navigate }) {
   const bankId = query.get("bank");
-  if (!bankId || !query.get("specialty")) {
+  if (!bankId) {
     mount(view, errorBox("缺少选题参数，请从选题页进入"), h("a", { href: "#/", class: "btn btn-outline" }, "返回选题"));
     return;
   }
@@ -26,6 +26,8 @@ export async function render(view, { query, navigate }) {
       count: query.get("count"),
       order: query.get("order"),
       source: query.get("source"),
+      tags: query.getAll("tags"),
+      sourceFileIds: query.getAll("source_file_ids"),
     });
   } catch (err) {
     mount(view, errorBox(err));

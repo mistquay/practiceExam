@@ -157,7 +157,7 @@ def compose_paper(conn: sqlite3.Connection, template: dict[str, Any], seed: str,
     if pool_rows is None:
         pool = load_pool(conn, template, person_category, specialty_code, strict=True)
         draft.pool_rule = "strict"
-        if not pool:
+        if not pool and not template.get("strict_person_scope"):
             pool = load_pool(conn, template, person_category, specialty_code, strict=False)
             draft.pool_rule = "union-fallback"
     else:

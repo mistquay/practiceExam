@@ -98,7 +98,7 @@ def import_users(conn: sqlite3.Connection, actor: str, content: bytes) -> dict[s
                 updated += 1
         audit.log(conn, actor, "user.import", "users:csv", at=at,
                   after={"created": created, "updated": updated, "errors": len(errors)},
-                  detail="CSV 批量导入工号唯一账号")
+                  detail="CSV 批量导入用户名唯一账号")
     return {"created": created, "updated": updated, "errors": errors}
 
 
@@ -238,7 +238,7 @@ def publish_bank(conn: sqlite3.Connection, actor: str, bank_id: int) -> dict[str
 
 
 def list_templates(conn: sqlite3.Connection) -> list[dict[str, Any]]:
-    return [dict(r) for r in conn.execute("SELECT * FROM paper_templates ORDER BY id").fetchall()]
+    return [dict(r) for r in conn.execute("SELECT * FROM paper_templates WHERE substr(code,1,14) != '__system_free_' ORDER BY id").fetchall()]
 
 
 def set_template_status(conn: sqlite3.Connection, actor: str, template_id: int, status: str) -> dict[str, Any]:
@@ -247,6 +247,8 @@ def set_template_status(conn: sqlite3.Connection, actor: str, template_id: int, 
     at = now_iso()
     with write_tx(conn):
         before = dict(_row(conn, "paper_templates", template_id))
+        if before["code"].startswith("__system_free_"):
+            raise forbidden("系统自由组卷兼容记录不能作为管理模板启用")
         conn.execute("UPDATE paper_templates SET status = ?, updated_at = ? WHERE id = ?",
                      (status, at, template_id))
         audit.log(conn, actor, "template.status", f"paper_templates:{template_id}", at=at,
@@ -288,7 +290,7 @@ def create_batch(conn: sqlite3.Connection, actor: str, body: Any) -> dict[str, A
     if start_at and end_at and str(end_at) <= str(start_at):
         raise bad_request("end_at 必须晚于 start_at")
     if names and not isinstance(names, list):
-        raise bad_request("examinee_list 必须是工号数组")
+        raise bad_request("examinee_list 必须是用户名数组")
     at = now_iso()
     with write_tx(conn):
         _row(conn, "paper_templates", template_id)
@@ -324,7 +326,7 @@ def pending_grading(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     rows = conn.execute(
         "SELECT aa.*, a.submitted_at, a.paper_id, u.employee_no, u.name AS user_name "
         "FROM attempt_answers aa JOIN attempts a ON a.id = aa.attempt_id "
-        "JOIN users u ON u.id = a.user_id WHERE aa.graded_result = 'pending' "
+        "JOIN users u ON u.id = a.user_id WHERE aa.graded_result = 'pending' AND a.exam_mode = 'managed' "
         "ORDER BY a.submitted_at, aa.attempt_id, aa.stable_id"
     ).fetchall()
     cache: dict[int, dict[str, dict[str, Any]]] = {}
@@ -351,6 +353,8 @@ def grade_item(conn: sqlite3.Connection, actor: str, body: Any) -> dict[str, Any
     at = now_iso()
     with write_tx(conn):
         attempt = _row(conn, "attempts", attempt_id)
+        if attempt["exam_mode"] == "self_service":
+            raise conflict("自主测试由本人自评，不进入管理阅卷")
         snap = next((s for s in read_snapshot(conn, attempt["paper_id"]) if s["stable_id"] == stable_id), None)
         if snap is None:
             raise not_found("该考试卷内没有这道题")

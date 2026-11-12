@@ -11,7 +11,9 @@ import sqlite3
 from typing import Any, Iterable
 
 from app.config import EXAM_AUTO_SUBMIT_ON_DEADLINE
-from app.models import PERSON_KEY, PERSON_FRONTLINE
+from decimal import Decimal
+
+from app.models import PERSON_CATEGORIES, QTYPE_SHORT
 from app.rules.paper import (
     allowed_specialties,
     question_dto,
@@ -21,13 +23,11 @@ from app.rules.paper import (
 )
 from app.rules.scoring import grade
 from app.services import audit
-from app.services.auth import actor_of, authorization_at
+from app.services.auth import actor_of
 from app.services.db import write_tx
 from app.services.dto import safe_analysis
 from app.services.errors import bad_request, conflict, forbidden, not_found
 from app.services.util import add_minutes, fmt_num, json_dumps, now_iso, parse_instant, utcnow
-
-ACTIVE_PERSONS = (PERSON_KEY, PERSON_FRONTLINE)
 
 
 def _loads(value: Any, default: Any) -> Any:
@@ -41,25 +41,43 @@ def _loads(value: Any, default: Any) -> Any:
         return default
 
 
-def _auth(conn: sqlite3.Connection, user: dict | sqlite3.Row) -> sqlite3.Row:
-    auth_row = authorization_at(conn, user["id"])
-    if auth_row is None:
-        raise forbidden("未找到当前有效的人员类别授权，请联系管理员录入（需依据与审批人）")
-    if auth_row["person_category"] not in ACTIVE_PERSONS:
-        raise forbidden("领导人员/专业管理人员暂不纳入本次考试")
-    return auth_row
-
-
-def _specialty(conn: sqlite3.Connection, template: dict[str, Any], requested: str | None,
-               auth_row: sqlite3.Row) -> str:
+def _specialty(conn: sqlite3.Connection, template: dict[str, Any], requested: str | None) -> str:
     allowed = allowed_specialties(template)
-    code = requested or auth_row["specialty_code"] or "pd_live"
-    if code not in allowed:
-        raise bad_request(f"专业 {code} 不在模板开放范围内：{allowed}")
-    row = conn.execute("SELECT enabled FROM specialties WHERE code = ?", (code,)).fetchone()
+    if not requested:
+        raise bad_request("请选择专业；当前模板未配置专业时无法开始")
+    if requested not in allowed:
+        raise bad_request(f"专业 {requested} 不在模板开放范围内：{allowed}")
+    row = conn.execute("SELECT enabled FROM specialties WHERE code = ?", (requested,)).fetchone()
     if row is None or not row["enabled"]:
-        raise bad_request(f"专业 {code} 未启用")
-    return code
+        raise bad_request(f"专业 {requested} 未启用")
+    return requested
+
+
+def self_service_templates(conn: sqlite3.Connection, *, bank_id=None,
+                           person_category: str | None = None) -> list[dict[str, Any]]:
+    if person_category and person_category not in PERSON_CATEGORIES:
+        raise bad_request("无效人员类别")
+    rows = conn.execute(
+        "SELECT t.id FROM paper_templates t JOIN bank_versions b ON b.id=t.bank_version_id "
+        "WHERE b.status='active' AND t.status IN ('active', 'draft') ORDER BY t.id"
+    ).fetchall()
+    items = []
+    for row in rows:
+        try:
+            t = template_for(conn, row["id"])
+        except (KeyError, ValueError):
+            continue  # 没有受信 fixtures 的模板不能自助组卷
+        if bank_id is not None and str(t["bank_version_id"]) != str(bank_id):
+            continue
+        if person_category and t["person_category"] != person_category:
+            continue
+        items.append({"template_id": t["id"], "name": t["name"],
+                      "person_category": t["person_category"], "status": t["status"],
+                      "specialty_codes": allowed_specialties(t), "question_count": t["question_count"],
+                      "duration_min": t["duration_min"], "total_score": t["total_score"],
+                      "pass_score": t["pass_score"], "exam_mode": "self_service",
+                      "notice": "自主模拟，非正式成绩；草案参数仅用于模拟，不代表正式考试规则。"})
+    return items
 
 
 def _batch_row(conn: sqlite3.Connection, batch_id: Any) -> sqlite3.Row | None:
@@ -98,9 +116,11 @@ def _in_list(row: sqlite3.Row | None, user: dict | sqlite3.Row) -> bool:
 
 
 def available(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, bank_id: Any = None,
-              specialty_code: str | None = None, paper_type: str | None = None) -> list[dict[str, Any]]:
-    auth_row = authorization_at(conn, user["id"])
-    person = auth_row["person_category"] if auth_row else None
+              specialty_code: str | None = None, paper_type: str | None = None,
+              person_category: str | None = None) -> list[dict[str, Any]]:
+    if person_category and person_category not in PERSON_CATEGORIES:
+        raise bad_request("无效人员类别")
+    person = person_category
     moment = utcnow()
     rows = conn.execute(
         "SELECT b.*, t.name AS template_name, t.code AS template_code, t.status AS template_status, "
@@ -117,7 +137,7 @@ def available(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, bank_id: An
             continue
         if paper_type and row["paper_type"] != paper_type:
             continue
-        if person is None or (row["person_category"] and row["person_category"] != person):
+        if person and row["person_category"] and row["person_category"] != person:
             continue
         if specialty_code and specialty_code not in allowed_specialties(
             {"specialty_rule": _loads(row["specialty_rule"], {})}
@@ -151,7 +171,9 @@ def available(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, bank_id: An
 def start(conn: sqlite3.Connection, user: dict | sqlite3.Row, body: Any) -> dict[str, Any]:
     moment = utcnow()
     at = moment.isoformat(timespec="seconds")
-    auth_row = _auth(conn, user)
+    self_service = bool(getattr(body, "self_service", False))
+    if self_service and getattr(body, "batch_id", None) is not None:
+        raise bad_request("自主模拟不绑定管理场次")
     batch = _batch_row(conn, getattr(body, "batch_id", None))
     template_id = getattr(body, "template_id", None) or (batch["template_id"] if batch else None)
     if template_id is None:
@@ -160,8 +182,18 @@ def start(conn: sqlite3.Connection, user: dict | sqlite3.Row, body: Any) -> dict
         template = template_for(conn, int(template_id))
     except (KeyError, ValueError):
         raise not_found("试卷模板不存在")
-    if template.get("status") != "active":
+    if template.get("status") not in (("active", "draft") if self_service else ("active",)):
         raise forbidden("试卷模板未启用")
+    person = getattr(body, "person_category", None)
+    if self_service and not person:
+        raise bad_request("请选择人员类别")
+    person = person or template.get("person_category")
+    if person not in PERSON_CATEGORIES:
+        raise bad_request("无效人员类别")
+    if template.get("person_category") and template["person_category"] != person:
+        raise bad_request("所选人员类别与模板不匹配，请重新选择模板")
+    if batch is not None and batch["status"] != "open":
+        raise forbidden("场次未开放")
     if batch is not None and int(batch["template_id"]) != int(template_id):
         raise bad_request("场次与模板不匹配")
     if batch is not None and not _in_window(batch, moment):
@@ -181,8 +213,11 @@ def start(conn: sqlite3.Connection, user: dict | sqlite3.Row, body: Any) -> dict
     if bank is None or bank["status"] != "active":
         raise forbidden("题库版本尚未发布")
 
-    specialty_code = _specialty(conn, template, getattr(body, "specialty_code", None), auth_row)
+    specialty_code = _specialty(conn, template, getattr(body, "specialty_code", None))
     seed = getattr(body, "seed", None) or secrets.token_hex(16)
+    if self_service:
+        template["strict_person_scope"] = True
+        seed = "self-service:" + secrets.token_hex(16)  # 自主模拟不接受客户端指定重放种子
     deadline = add_minutes(moment, float(template["duration_min"]))
     if batch is not None and batch["end_at"]:
         end = parse_instant(batch["end_at"], end_of_day=True)
@@ -190,22 +225,27 @@ def start(conn: sqlite3.Connection, user: dict | sqlite3.Row, body: Any) -> dict
             deadline = min(deadline, end.isoformat(timespec="seconds"))
 
     with write_tx(conn):
-        paper_id, snapshot_hash, _ = replay_paper(
-            conn, template, seed, auth_row["person_category"], specialty_code, at=at
-        )
+        try:
+            paper_id, snapshot_hash, _ = replay_paper(
+                conn, template, seed, person, specialty_code, at=at
+            )
+        except ValueError as exc:
+            raise bad_request(f"当前人员类别/专业无法组卷：{exc}") from exc
         cur = conn.execute(
             "INSERT INTO attempts (user_id, batch_id, paper_id, authorization_id, "
-            "person_category_snapshot, specialty_snapshot, started_at, deadline_at, status) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_progress')",
-            (user["id"], batch["id"] if batch else None, paper_id, auth_row["id"],
-             auth_row["person_category"], specialty_code, at, deadline),
+            "person_category_snapshot, specialty_snapshot, started_at, deadline_at, status, "
+            "exam_mode, pass_score_snapshot, duration_min_snapshot) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_progress', ?, ?, ?)",
+            (user["id"], batch["id"] if batch else None, paper_id, None,
+             person, specialty_code, at, deadline,
+             "self_service" if self_service else "managed", template["pass_score"], template["duration_min"]),
         )
         attempt_id = int(cur.lastrowid)
         audit.log(conn, actor_of(user), "exam.start", f"attempts:{attempt_id}", at=at,
                   after={"paper_id": paper_id, "seed": seed, "snapshot_hash": snapshot_hash,
-                         "person_category": auth_row["person_category"], "specialty_code": specialty_code,
+                         "person_category": person, "specialty_code": specialty_code,
                          "deadline_at": deadline},
-                  detail="考试时点冻结授权与锁卷快照")
+                  detail="考试时点冻结用户选择与锁卷快照")
     return view(conn, user, attempt_id)
 
 
@@ -237,9 +277,11 @@ def _finalize(conn: sqlite3.Connection, row: sqlite3.Row, answers: dict[str, str
         sid = snap["stable_id"]
         choice = answers.get(sid, "")
         earned, result = grade(snap, choice)
+        if row["exam_mode"] == "self_service" and snap["qtype"] == QTYPE_SHORT and not choice.strip():
+            earned, result = 0.0, "blank"
         if result == "pending":
             pending += 1
-        total += earned
+        total = float(Decimal(str(total)) + Decimal(str(earned)))
         rows.append((row["id"], sid, choice or None, earned, result, "server", at))
         if result in ("wrong", "blank"):
             conn.execute(
@@ -260,11 +302,14 @@ def _finalize(conn: sqlite3.Connection, row: sqlite3.Row, answers: dict[str, str
         "SELECT t.pass_score FROM paper_templates t JOIN papers p ON p.template_id = t.id WHERE p.id = ?",
         (row["paper_id"],),
     ).fetchone()
-    pass_score = float(template["pass_score"]) if template else 60.0
+    pass_score = float(row["pass_score_snapshot"] if row["pass_score_snapshot"] is not None
+                       else template["pass_score"] if template else 60.0)
     status = "expired" if expired else ("pending_review" if pending else "submitted")
+    if row["exam_mode"] == "self_service" and pending:
+        status = "pending_review"
     conn.execute(
         "UPDATE attempts SET score = ?, passed = ?, status = ?, submitted_at = ? WHERE id = ?",
-        (round(total, 6), int(total >= pass_score), status, at, row["id"]),
+        (round(total, 6), None if pending and row["exam_mode"] == "self_service" else int(total >= pass_score), status, at, row["id"]),
     )
     audit.log(conn, actor, "exam.submit", f"attempts:{row['id']}", at=at,
               after={"score": round(total, 6), "status": status, "pending": pending,
@@ -308,16 +353,26 @@ def result_view(conn: sqlite3.Connection, row: sqlite3.Row) -> dict[str, Any]:
             "analysis": safe_analysis(snap.get("analysis")),
         })
     score = float(row["score"]) if row["score"] is not None else 0.0
-    total = float(tpl["total_score"])
-    pass_score = float(tpl["pass_score"])
+    total = float(paper["total_score"])
+    pass_score = float(row["pass_score_snapshot"] if row["pass_score_snapshot"] is not None else tpl["pass_score"])
     passed = None if row["passed"] is None else bool(row["passed"])
+    objective_items = [s for s in snapshots if s["qtype"] != QTYPE_SHORT]
+    objective_total = float(sum((Decimal(str(s["score"])) for s in objective_items), Decimal(0)))
+    objective_score = float(sum((Decimal(str(graded[s["stable_id"]]["score"] or 0))
+                                for s in objective_items if s["stable_id"] in graded), Decimal(0)))
+    if pending and row["exam_mode"] == "self_service":
+        score, passed = None, None
     result = {
+        "objective_score": objective_score, "objective_total": objective_total,
         "score": score, "total_score": total, "pass_score": pass_score, "passed": passed,
         "pending_count": pending, "items": items,
     }
     responses = [
         {"stable_id": g["stable_id"], "choice": g["user_answer"] or ""}
         for g in graded.values()
+        if row["exam_mode"] != "self_service" or (
+            g["stable_id"] in {s["stable_id"] for s in objective_items}
+            and safe_analysis(g["user_answer"]) is not None)
     ]
     return {**_base_view(conn, row, tpl, paper),
             "score": score, "passed": passed, "result": result, "responses": responses}
@@ -330,7 +385,9 @@ def _base_view(conn: sqlite3.Connection, row: sqlite3.Row, tpl: sqlite3.Row,
         "id": row["id"],
         "name": tpl["name"],
         "template_name": tpl["name"],
-        "paper_type": tpl["paper_type"],
+        "paper_type": "mock" if row["exam_mode"] == "self_service" else tpl["paper_type"],
+        "exam_mode": row["exam_mode"],
+        "notice": "自主模拟，非正式成绩；简答题由本人自评，非自动评分。" if row["exam_mode"] == "self_service" else "管理场次考试",
         "status": row["status"],
         "person_category": row["person_category_snapshot"],
         "specialty_code": row["specialty_snapshot"],
@@ -338,9 +395,9 @@ def _base_view(conn: sqlite3.Connection, row: sqlite3.Row, tpl: sqlite3.Row,
         "deadline_at": row["deadline_at"],
         "submitted_at": row["submitted_at"],
         "server_now": now_iso(),
-        "duration_min": tpl["duration_min"],
-        "total_score": float(tpl["total_score"]),
-        "pass_score": float(tpl["pass_score"]),
+        "duration_min": row["duration_min_snapshot"] if row["duration_min_snapshot"] is not None else tpl["duration_min"],
+        "total_score": float(paper["total_score"]),
+        "pass_score": float(row["pass_score_snapshot"] if row["pass_score_snapshot"] is not None else tpl["pass_score"]),
         "snapshot_hash": paper["snapshot_hash"],
         "seed": paper["seed"],
         "questions": [question_dto(s) for s in read_snapshot(conn, row["paper_id"])],
@@ -395,11 +452,13 @@ def list_my_exams(conn: sqlite3.Connection, user: dict | sqlite3.Row) -> list[di
     return [
         {
             "id": r["id"], "attempt_id": r["id"], "name": r["template_name"],
-            "template_name": r["template_name"], "paper_type": r["paper_type"],
+            "template_name": r["template_name"],
+            "paper_type": "mock" if r["exam_mode"] == "self_service" else r["paper_type"],
+            "exam_mode": r["exam_mode"],
             "batch_code": r["batch_code"], "bank_version_code": r["bank_version_code"],
             "started_at": r["started_at"], "submitted_at": r["submitted_at"],
             "deadline_at": r["deadline_at"], "status": r["status"],
-            "score": r["score"], "total_score": r["paper_total"],
+            "score": None if r["exam_mode"] == "self_service" and r["status"] == "pending_review" else r["score"], "total_score": r["paper_total"],
             "passed": None if r["passed"] is None else bool(r["passed"]),
             "person_category": r["person_category_snapshot"],
             "specialty_code": r["specialty_snapshot"],
@@ -413,19 +472,19 @@ def recompute_score(conn: sqlite3.Connection, attempt_id: int, *, at: str | None
     row = conn.execute("SELECT * FROM attempts WHERE id = ?", (attempt_id,)).fetchone()
     if row is None:
         raise not_found("考试记录不存在")
-    total = float(conn.execute(
-        "SELECT COALESCE(SUM(score), 0) FROM attempt_answers WHERE attempt_id = ?", (attempt_id,)
-    ).fetchone()[0])
+    total = float(sum((Decimal(str(r[0] or 0)) for r in conn.execute(
+        "SELECT score FROM attempt_answers WHERE attempt_id = ?", (attempt_id,)
+    )), Decimal(0)))
     pending = conn.execute(
         "SELECT COUNT(*) FROM attempt_answers WHERE attempt_id = ? AND graded_result = 'pending'",
         (attempt_id,),
     ).fetchone()[0]
     paper = conn.execute("SELECT * FROM papers WHERE id = ?", (row["paper_id"],)).fetchone()
     tpl = conn.execute("SELECT pass_score FROM paper_templates WHERE id = ?", (paper["template_id"],)).fetchone()
-    pass_score = float(tpl["pass_score"])
+    pass_score = float(row["pass_score_snapshot"] if row["pass_score_snapshot"] is not None else tpl["pass_score"])
     status = "pending_review" if pending else "graded"
     conn.execute(
         "UPDATE attempts SET score = ?, passed = ?, status = ? WHERE id = ?",
-        (round(total, 6), int(total >= pass_score), status, attempt_id),
+        (round(total, 6), None if pending and row["exam_mode"] == "self_service" else int(total >= pass_score), status, attempt_id),
     )
     return round(total, 6)

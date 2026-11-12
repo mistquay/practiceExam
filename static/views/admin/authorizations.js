@@ -20,7 +20,7 @@ async function loadDictionaries() {
 }
 
 export async function render(view, { query, navigate }) {
-  const keyword = h("input", { class: "input", placeholder: "输入工号或姓名查找" });
+  const keyword = h("input", { class: "input", placeholder: "输入用户名或姓名查找" });
   const pickBox = h("div");
   const detailBox = h("div");
 

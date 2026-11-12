@@ -1,4 +1,4 @@
-"""工号 + bcrypt 密码 + HttpOnly Cookie Session；当前有效授权查询。"""
+"""用户名 + bcrypt 密码 + HttpOnly Cookie Session；当前有效授权查询。"""
 from __future__ import annotations
 
 import secrets
@@ -122,5 +122,5 @@ def user_dto(conn: sqlite3.Connection, row: sqlite3.Row) -> dict:
 
 
 def actor_of(user: dict | sqlite3.Row) -> str:
-    """审计 actor 一律用真实工号，禁止匿名。"""
+    """审计 actor 一律用真实用户名，禁止匿名。"""
     return str(user["employee_no"])

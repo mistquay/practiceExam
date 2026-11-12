@@ -14,6 +14,8 @@ class LoginIn(StrictDto):
 
 
 class ExamStartIn(StrictDto):
+    self_service: bool = False
+    person_category: str | None = None
     batch_id: int | None = None
     template_id: int | None = None
     specialty_code: str | None = None

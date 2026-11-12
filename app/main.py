@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.config import STATIC_DIR
-from app.routers import admin, auth, banks, exams, practice, records, reports
+from app.routers import admin, auth, banks, exams, practice, records, reports, self_tests
 from app.services.bootstrap import bootstrap
 from app.services.dto import forbidden_keys, forbidden_tokens
 from app.services.errors import ApiError
@@ -70,6 +70,7 @@ app.include_router(banks.router)
 app.include_router(practice.router)
 app.include_router(records.router)
 app.include_router(exams.router)
+app.include_router(self_tests.router)
 app.include_router(admin.router)
 app.include_router(reports.router)
 

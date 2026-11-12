@@ -138,7 +138,7 @@ def test_banks_and_dimension(scenario):
     dim = scenario["u1"].get(f"/api/banks/{scenario['bank']}/dimension")
     assert dim.status_code == 200
     d = dim.json()
-    assert {p["code"] for p in d["person_categories"]} == {"重点人员", "一线人员"}
+    assert {p["code"] for p in d["person_categories"]} == {"重点人员", "一线人员", "领导人员", "专业管理人员"}
     enabled = {s["code"] for s in d["specialties"] if s["enabled"]}
     assert enabled == {"pd_general", "pd_live"}, enabled
     assert len(d["specialties"]) == 22
@@ -222,10 +222,8 @@ def test_exam_related_static_files_have_no_answer_keywords():
             assert token.lower() not in body.lower(), f"{rel} 含 {token!r}"
 
 
-def test_practice_dto_may_contain_answers_but_isolated_from_exam_pool(scenario):
+def test_practice_dto_may_contain_answers_without_writing_exam_attempts(scenario):
     conn = T.connect(scenario["db"])
-    from app.services.practice import exam_pool_ids
-    exam_ids = exam_pool_ids(conn, scenario["bank"], "重点人员")
     conn.close()
     r = scenario["u1"].get("/api/practice/questions", params={
         "bank_id": scenario["bank"], "person_category": "重点人员",
@@ -235,8 +233,9 @@ def test_practice_dto_may_contain_answers_but_isolated_from_exam_pool(scenario):
     items = r.json()["questions"]
     assert len(items) == 30
     assert all("answer" in q and "analysis" in q for q in items)
-    assert not ({q["stable_id"] for q in items} & exam_ids), "练习池与考试池未隔离"
-    q = items[0]
+    assert r.json()["total"] > len(items)
+    # 人员筛选后首题可能是简答题；自动判分契约应选客观题验证。
+    q = next(q for q in items if q["qtype"] != "简答题")
     r = scenario["u1"].post("/api/practice/submit", json={
         "bank_id": scenario["bank"], "stable_id": q["stable_id"], "user_answer": q["answer"],
     })

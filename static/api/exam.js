@@ -2,13 +2,20 @@
 import { get, post, listOf, requestWithMeta } from "./http.js";
 
 /** 当前用户可参加的场次 / 模板。 */
-export async function listAvailable({ bankId, specialtyCode, paperType }) {
+export async function listAvailable({ bankId, specialtyCode, paperType, personCategory }) {
   const data = await get("/api/exams/available", {
     bank_id: bankId,
     specialty_code: specialtyCode,
     paper_type: paperType,
+    person_category: personCategory,
   });
   return listOf(data, "batches");
+}
+
+export async function listSelfServiceTemplates({ bankId, personCategory }) {
+  return listOf(await get("/api/exams/self-service/templates", {
+    bank_id: bankId, person_category: personCategory,
+  }), "items");
 }
 
 function withServerNow({ data, serverDate }) {
@@ -16,10 +23,11 @@ function withServerNow({ data, serverDate }) {
 }
 
 /** 开考：返回 attempt_id、deadline_at、server_now 与题目。 */
-export async function startExam({ batchId, templateId, specialtyCode }) {
+export async function startExam({ batchId, templateId, specialtyCode, personCategory, selfService = false }) {
   return withServerNow(
     await requestWithMeta("POST", "/api/exams/start", {
-      body: { batch_id: batchId, template_id: templateId, specialty_code: specialtyCode },
+      body: { batch_id: batchId, template_id: templateId, specialty_code: specialtyCode,
+        person_category: personCategory, self_service: selfService },
     })
   );
 }

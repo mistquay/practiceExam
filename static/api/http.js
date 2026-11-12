@@ -21,7 +21,8 @@ function buildUrl(path, query) {
   if (!query) return path;
   const params = new URLSearchParams();
   Object.entries(query).forEach(([k, v]) => {
-    if (v !== undefined && v !== null && v !== "") params.set(k, String(v));
+    if (Array.isArray(v)) v.forEach((item) => params.append(k, String(item)));
+    else if (v !== undefined && v !== null && v !== "") params.set(k, String(v));
   });
   const qs = params.toString();
   return qs ? `${path}?${qs}` : path;

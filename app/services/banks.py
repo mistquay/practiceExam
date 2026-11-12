@@ -4,7 +4,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 
-from app.models import PERSON_FRONTLINE, PERSON_KEY, QTYPES
+from app.models import PERSON_CATEGORIES, QTYPES
 from app.rules.templates import expand_templates
 
 PAPER_TYPES = [
@@ -58,7 +58,7 @@ def dimension(conn: sqlite3.Connection, bank_id: Any) -> dict[str, Any]:
         {"id": t["id"], "code": t["code"], "person_category": t["person_category"],
          "paper_type": t["paper_type"], "status": t["status"]}
         for t in conn.execute(
-            "SELECT * FROM paper_templates WHERE bank_version_id = ? ORDER BY id", (bid,)
+            "SELECT * FROM paper_templates WHERE bank_version_id = ? AND substr(code,1,14) != '__system_free_' ORDER BY id", (bid,)
         ).fetchall()
     ]
     cfg = next((t for t in expand_templates(bank["code"])), {})
@@ -69,7 +69,7 @@ def dimension(conn: sqlite3.Connection, bank_id: Any) -> dict[str, Any]:
         "status": bank["status"],
         "person_categories": [
             {"code": p, "name": p, "question_count": person_counts.get(p, 0)}
-            for p in (PERSON_KEY, PERSON_FRONTLINE)
+            for p in PERSON_CATEGORIES
         ],
         "specialties": specialties,
         "qtypes": [{"code": q, "name": q, "question_count": counts.get(q, 0)} for q in QTYPES],
