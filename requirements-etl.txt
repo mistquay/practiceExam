@@ -1,0 +1,22 @@
+# 离线 ETL / 测试专用依赖（不进生产镜像）。解释器一律用 mamba 的 ame 环境，Python 3.14.4：
+#   /d/services/mamba_envs/ame/python.exe   （Windows: D:\services\mamba_envs\ame\python.exe）
+#   不要用系统默认 python，也不要在仓库外建 venv。
+#   /d/services/mamba_envs/ame/python.exe -m pip install --only-binary=:all: -r requirements.txt -r requirements-etl.txt
+#   /d/services/mamba_envs/ame/python.exe -m etl import --source 2026-11-12 --version 2026-11 --dry-run [--verify-rar]
+#   /d/services/mamba_envs/ame/python.exe -m etl import --source 2026-11-12 --version 2026-11 --load
+#   /d/services/mamba_envs/ame/python.exe -m etl import --version legacy --load
+#   /d/services/mamba_envs/ame/python.exe -m app.db.migrate status|upgrade|downgrade [--db data/exam.db]
+#   /d/services/mamba_envs/ame/python.exe -m pytest tests/ -q
+#     （若 %TEMP%\pytest-of-<user> 无权限访问，追加 -p no:cacheprovider --basetemp <临时目录>）
+# 离线机：先在联网机用同一解释器 `-m pip download --only-binary=:all: -r requirements-etl.txt -d wheels/`，
+#   再 `-m pip install --no-index -f wheels/ -r requirements-etl.txt`；或直接预置整包镜像。
+openpyxl==3.1.5        # OOXML（147 个伪装成 .xls 的 xlsx），传文件句柄读取，可读单元格 fill
+et_xmlfile==2.0.0      # openpyxl 依赖
+xlrd==1.2.0            # OLE2/BIFF8（102 个真 .xls），formatting_info=True 读底色；2.x 已移除该能力，勿升级
+PyYAML==6.0.3          # fixtures/*.yaml
+pytest==9.2.0          # tests/test_etl.py
+iniconfig==2.3.1       # pytest 依赖
+pluggy==1.7.0          # pytest 依赖
+packaging==26.3        # pytest 依赖
+Pygments==2.21.0       # pytest 依赖
+colorama==0.4.6        # pytest 依赖（Windows）

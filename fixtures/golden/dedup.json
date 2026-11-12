@@ -1,0 +1,954 @@
+{
+ "54-1": {
+  "files": [
+   "题库终稿20260508/54-1-风电安规-风电运维.xls"
+  ],
+  "match": "54-1-风电安规-风电运维.xls",
+  "rows": 332,
+  "stable_ids": [
+   "01514c27199ac92a3a5d30a46a7d8410b19c7f49",
+   "02415a690b22b70764292d7ab120b7e748ccc15f",
+   "048cc2eabbb6e224c9b43a6b75aededf27460d6e",
+   "048faf6d9860efdee33d57c0a2bdbf7745b7fe5b",
+   "04c88eb3a41467137f9357cc8533f61d8116528d",
+   "05c0b79f4d94c1cd82a910271a6e34442bb370bb",
+   "05f34419d215a70e4ede8d3eca1137dd6525e06b",
+   "064d38497cc68b2a2e30705fb121fbe323d6df05",
+   "0838c5689a40cd711c6d3e8e7246a66f6c743506",
+   "08c33ac14c81a283df806a46a92731dc947e47ba",
+   "0c7dc5eb9b717021eb0504a881a35952ca94fe86",
+   "0d58b24dcdedfa0271322628b4a7e6a1531fda07",
+   "0e716f0c3d3483328cb1a1b07df718cc4bbe5f81",
+   "0f69b2ebd54e00a5dd2d7d6fcbe6b663223443b3",
+   "1014de689d29ba9356fde8fa890b21a4cfbb9dbf",
+   "154ad6b30dc6dd730b0f6ad5c7c957611859d2d4",
+   "15d4840a116a296149152bac42d198f5731300c2",
+   "186d15443bc829cd3598af18deeaa03da488ba91",
+   "18cab258c370e6408c6d1d2156e53ac490f9237f",
+   "1b26b5391dea2d92e2886c8386fcd24ec1255d2d",
+   "1bf3cebef948574c9173f636380aafc00bd1b0f7",
+   "1f12e54950dee8fb3f0431621f302b0fd860e9b5",
+   "2192ae875ca1d87a818b06a93f79aa1c0cea022f",
+   "251113685dc6c198a13eaf88a983c06f341f0aee",
+   "25e2223aa8c43c1acd555ef7171db7ec9614b69a",
+   "2670f4aa316b881c4c98d28e8ec0b602086c6a23",
+   "26e3989a4ce8ffb1835ca2d101190f78c424d66d",
+   "270be6f692b34f7183912063867b71c9f3943859",
+   "270edfa749b7ef2f5f450e983931d3a588aacad1",
+   "280b47109382843b679a66d6f91e55025decb27e",
+   "288e7371323f1531b12c89db615055ce399ab4e2",
+   "2beeb8e564410a748e7f6a18b115aee8892a853a",
+   "2ca681f469a972599fb2e2ffb2f272c9da22e662",
+   "2e0b09f4de3623b7df48d53ee340eb5192334e37",
+   "2faab327767550c24873a7b21f95a2541f84d036",
+   "325c4dd445bcd7a6c6c9c8f566b85a8d798465b5",
+   "327335d73ba788dbea22e5f4056556dcbe9de8c4",
+   "33255a48eab8595711dc740c683f7a2b951f05a0",
+   "3402532bd807bd9840af5a654e1370894b4262a9",
+   "34e992d6b4617d14a1df14b3251b5e0327ff4294",
+   "3a2139fa9d0ac8e784775c54b68495b54ab08601",
+   "4099778b38e55cce94cffd7b5da62742d3671920",
+   "40dd05ad7f1eeb5cfdb333b1e73afd333a175077",
+   "4159372ad133d12bbb5a05c5433cd179f7fae2f5",
+   "42dff3cbf00c0abf1d5b8c798b9858c987c2ecb6",
+   "4703d801ca9043e894750b6210489a52a8664f72",
+   "4722621524e3b53b910c896cc7903f948409a9dd",
+   "4a2a9b272e3b289089ec3234cd74caa0b0686cd8",
+   "4f0c1390eb521a88516307f8752f0ac926022f77",
+   "4fc915c94f9d9ad34f20412c2b706af3f7901dbf",
+   "509a5257faf9ff03aa45b38aa56d5100dd80f2e0",
+   "51f60cdfde5b94eb63ab3e61c517d20575111bdf",
+   "52057428e70f7add98f991114a473b72c3f760ef",
+   "53fd7da07903bf179225d9998cfa5da70aa64831",
+   "5576530538e6d2f0dd3b1f974553efa9bf60f2fc",
+   "5643488655b9ae7ba4e9c027144c8bfbcac4888e",
+   "59b15a1dd0d9e709693c93e6472bb96899aafa34",
+   "5ad5a580c534dc7aab5346a771fb7b3e622d67fd",
+   "60a0c7cc0544873231e9888ab5763ebbbd0f4b80",
+   "60edb21b8b7d1891118a0b2329b0e83fafad196d",
+   "61524a9e799788f593dd693099583d4ed57b4060",
+   "6227ea22a477ee40da1293b6619398cb31de5a17",
+   "63738ccd8788db7258bb84a01df997aa4fdb60f8",
+   "649f3f7f6ae0faa6831b5065cb1e073def2c1fa2",
+   "64cbc3527673043c425294f65ea0b1d63a139800",
+   "651e0c83547032003e3685a8ecfddfece3784718",
+   "6534710dafae608bc67f3404aeff39fe337b0c6c",
+   "6571fbf907a66d89cfce3a0d3da165c8c1952bc0",
+   "659f0c107b8f04b7e7e8f45488427e7977dfd53f",
+   "65cec2796bdaa56b8a3a901e1b0bf9e5a60386fd",
+   "667988b83075a20d31821305bbebd5e986af9239",
+   "669b498a9d1232cf0aed5e96c476a0e292eb529f",
+   "66b06d570b989d0ce711e42a6073265144c4bdcd",
+   "67b047eeff5576f600cfabda2551a617217d0554",
+   "692a013f133f81de549a47a8f76674d6aee41ffc",
+   "699d6084d661074a452deb798b70e0af30a8673f",
+   "6d168d759f4624732250d2e3031c78e2d744d042",
+   "6df19c0171bd6dd227a8d040a87ee1ca8dfefa80",
+   "6ee9f938c04320af851dda3209b7a3cf5d4d50c3",
+   "6eea80a8379eae9601bee7a19405a49362ac1ac7",
+   "6f22c4bbaf3e1fcd411a483be69493b1354e92dd",
+   "7231ecc4df236a5c3740530e9e4e7da5a30432b6",
+   "73590e6807117bcc3075aad5e400057ea3d65511",
+   "740231f23283545d3679b7dd97571421eb9f6c93",
+   "7432faae301c3ee6ef710db0eadc1ddc2f890410",
+   "779a0d2ad891d113d1e9848d58dfe0f7ccfae367",
+   "78359e81495af300133332c236ab4c8e146fd583",
+   "7880c657b29a094b4d2824726caa233f1630fb6a",
+   "7a487ad9021f8639bb151255a362d0c3b85ef5fc",
+   "7acffc089a332f16b1bca3c25ebba5e704ec4c4c",
+   "7b103a6d821eda81c5d07d7340b2430303296b68",
+   "7bbd169dc0a6991b69b4eba6bb506de66467743a",
+   "7caa669c44dab15d885e1161bd4c5c70f02c9220",
+   "7dbf0ed29dafa45818359464888f859d0f823c10",
+   "7e09198cbd16b971eea5633a589cc6941243f220",
+   "828d2f2a4525fac6ea7adf32d550266adf6ab71c",
+   "83ddab380837c7629adef8de2360f589c6c315a3",
+   "86a697ed2c1e5c70a2af07fe0cb738074dda0ea9",
+   "8ac3cc36fffecac9d78aee95f66cf7dccbf1c2aa",
+   "8b4e1104b3570a9bf80961e2803cd255c2b68cd8",
+   "8caaef9afcee2c585f1277a52bd533ba26ff434a",
+   "8d638a46f6e1fb3802a10d80b3b5ebaf22b00e4b",
+   "8debb0fd0ab8edf553d20e5731abfb152a19e843",
+   "8df706a0b1b79a5e6af46e435901af85fdabc2f3",
+   "9114c0b53e86008b3fc495484d5b8ea843e24509",
+   "918f36e6af254c5c35aa08103061e2df6f6a24a0",
+   "925b2318a98572382e55517c6cade057b07ad5e3",
+   "93648f10c81dbac4e7a554595bc7c6bc31e8d28f",
+   "952145960c7f41b01d3a92d5f1fe6b38579cf73b",
+   "9571d3624ab0bf132c982aa4c97f9bee94bf8d67",
+   "96464570c7d94d34e96bb9c950cee9c6e26209f5",
+   "9754e3232ab78f5a93a092747cb67634444c6054",
+   "9d32856c0cd633a8002a7bac570c1e5ad6dc4b22",
+   "9e300cefaacb082dfa453efd700d74466d74eadf",
+   "9e351c198db6885dcb553c1e423a83ed5d707a7f",
+   "a01abac6b6be5cdd8332e380a99038dabaac4f85",
+   "a17ad2292df7d5a547dde2ce0363a9f69cff5428",
+   "a1925147cc557c9ca0467c000f05a55ccae868fe",
+   "a1e79647a4998272f72e6102f55116192ab543e8",
+   "a502b40c590ddbf5c0816ae680ab3cdf3d19ef14",
+   "a521f92240971b0e24433ebe0915f22e0662b2d0",
+   "aa4176c8020b56ec01d684f650680608840b4493",
+   "ab8aecb46444f8a92bc4e8621633645ca1e45d80",
+   "ac403f6df8aa391ade3684744e2efe689a453142",
+   "acd7bcb659f6e3f376d26f8476d033e64dc9ebf7",
+   "adc5280891889227da8a3345b83250dd22ea3b7c",
+   "b0c9e516078fd937b62612600dd226b3a9d212fe",
+   "b0cbe3b268492240278560ba5c19710378ef4078",
+   "b19e6a0509483318d57a0a124da916ff05482c9c",
+   "b3f5dbc5ee959c43e41ec7896931b4044007f0ae",
+   "b5e9bc1e277e9be62c77eb375949c0060ccd7227",
+   "b859f9cec920eda01301678d8c49642def8a0356",
+   "b85a52ca909ab07d8fc37cdf758c05738bb75391",
+   "bb7e553e7f7506f45e9ca026a40313c47ddd7c50",
+   "bbda9ff2b75f27b34388077095ccf9a439664784",
+   "c0e90ff7edee55e88519acd9287b7dc9e128e946",
+   "c3e5d803e0e1ee9916389297b48c4f2067dac2c7",
+   "c4466a68051444161fc3ef67b938900d22b1c81d",
+   "c478443c0a3d684d588e9d335aafa62be1fbb945",
+   "c4f9b33c40881bb7696246469370092f9d9a35c1",
+   "c731d8ca4f4bcf1fc6a8867e3614ea3eb54e8a97",
+   "c95adb7d33e05b7b9051307f4f3b35bdcfc6585b",
+   "cb4c25933dfdfaea143d7119b0b1ba62ca8bba84",
+   "cbdcc6701a7d20ccf658ef83ea87dd1a024c1dcd",
+   "ce6af9cca06aac8080e71b86316f627bf5b1a797",
+   "ceba749aec3c90c879b1f04f6860381ae550480c",
+   "ceedd1d00eecb8ec1fe1c77ebbc7ca03a31f5917",
+   "d05ba5bf2adddbaafcbf4f638123faecc1507ff8",
+   "d1d9e3d71a2cd30665248178732e732077283844",
+   "d2734322fa67c149886f51ec798f32498ef51ac7",
+   "d30b5ef2652d258528a34f6d6556678406ff3ba5",
+   "d30cf403dd6a04aa36993791d04a9e59a6a7ae70",
+   "d3fc91f87c4ec61bd6b517ff8f2eea91aeb81540",
+   "d45ac3eda7159a2298781ca85730e739aa411253",
+   "d6c1fa5a1d0950a25315361d259486fd2a8632ba",
+   "d7f108d98b94f706f8aacabdd6661e63e5a4e235",
+   "d826f3ae25ba6dcaa87f682d5c27a6b7521fa665",
+   "d9a1169892af4846baa5f3c184137802023f28c4",
+   "d9ead32480a7f8eb85364a68d78f91a9de4d0b33",
+   "db844cefa6adff47036c3290dfd2cb065c4e226e",
+   "dc71c1653db5c45ef17c8ae4fdb2a259de6f6c09",
+   "ddac7ecaba48e2a0ea600628a80497751f807cc0",
+   "df0d8b5a3a8d6e4c699b833b145d5dd10e92b487",
+   "df3159406339d18fe9b15e6e631c43cc719dd882",
+   "e4cd87ae7ccb8497728252a4a32fc8f29744d9ed",
+   "e9c3c54cea08783bccbcda6b3428e8a8a9efe855",
+   "eb654f467951820a86816f63381669ee36732eed",
+   "ec5d196e38d0a01da4d98bfd68b1a9f39589578b",
+   "ed00d258fb963174d0281242d94d8b95b6d5ba4f",
+   "eda9ed96fb0f26c05f0ad58ec090192ae30a140e",
+   "eee1dbfa2e91d81b35335a97d8b8dead5275ac94",
+   "f17622bd6628039a5019adfba6e4a9ec5bb9a014",
+   "f4386f6a731a650f5b59de75544d8cd435e189a9",
+   "f6cf3eaaa63fa99ece25320d3d3409b3ee144d98",
+   "f7d89eb56520d0af1d64b8e51d3760ac8674a07f",
+   "f955d25d80338880e4c6966da80ab96d8e65c1f8",
+   "faa2dabd91077889bfa3e60072e110261478a65c",
+   "fd77dadc1dbeb0d2b6ae06a8b7c1d19cd94100f6",
+   "fe820afc2b596ee12dd6a58a77efe56cf670039d",
+   "ff951f4a74e6963a230d7893f65e77715ccd4d21",
+   "ffd4a6e7639f3e536b508453aa8c9f572fc26eeb"
+  ],
+  "unique": 181
+ },
+ "all_stable_ids_sha1": "4d5b358c5d5f2fe79de69a306bccb2973a9fac1e",
+ "answer_conflicts": [
+  {
+   "answers": {
+    "1.每基杆塔应设识别标记（色标、判别标帜等）和线路名称、杆号。2.工作前应发给作业人员相对应线路的识别标记。3.工作负责人宣布开始工作前，应核对停电检修线路的识别标记和线路名称、杆号无误，验明线路确已停电并装设接地线。4.作业人员攀登杆塔前，应核对停电检修线路的识别标记和线路名称、杆号无误。5.攀登杆塔和在杆塔上工作时，每基杆塔都应设专人监护。": 4,
+    "1.每基杆塔应设识别标记（色标、判别标帜等）和线路名称、杆号；2.工作前应发给作业人员相对应线路的识别标记；3.工作负责人宣布开始工作前，应核对停电检修线路的识别标记和线路名称、杆号无误，验明线路确已停电并装设接地线；4.作业人员攀登杆塔前，应核对停电检修线路的识别标记和线路名称、杆号无误；5.攀登杆塔和在杆塔上工作时，每基杆塔都应设专人监护。": 4
+   },
+   "chosen_answer": "1.每基杆塔应设识别标记（色标、判别标帜等）和线路名称、杆号。2.工作前应发给作业人员相对应线路的识别标记。3.工作负责人宣布开始工作前，应核对停电检修线路的识别标记和线路名称、杆号无误，验明线路确已停电并装设接地线。4.作业人员攀登杆塔前，应核对停电检修线路的识别标记和线路名称、杆号无误。5.攀登杆塔和在杆塔上工作时，每基杆塔都应设专人监护。",
+   "stable_id": "016684f5535f05b1e61495e6086676f7c4178313"
+  },
+  {
+   "answers": {
+    "机械锁应一把钥匙开一把锁，钥匙应编号并妥善保管。下列三种情况应加挂机械锁：1.配电站、开关站未装防误操作闭锁装置或闭锁装置失灵的隔离开关（刀闸）手柄和网门；2.当电气设备处于冷备用、网门闭锁失去作用时的有电间隔网门；3.设备检修时，回路中所有来电侧隔离开关（刀闸）的操作手柄。": 4,
+    "机械锁应一把钥匙开一把锁，钥匙应编号并妥善保管。下列三种情况应加挂机械锁：a）配电站、开关站未装防误操作闭锁装置或闭锁装置失灵的隔离开关（刀闸）手柄和网门；b）当电气设备处于冷备用、网门闭锁失去作用时的有电间隔网门；c）设备检修时，回路中所有来电侧隔离开关（刀闸）的操作手柄。": 4
+   },
+   "chosen_answer": "机械锁应一把钥匙开一把锁，钥匙应编号并妥善保管。下列三种情况应加挂机械锁：a）配电站、开关站未装防误操作闭锁装置或闭锁装置失灵的隔离开关（刀闸）手柄和网门；b）当电气设备处于冷备用、网门闭锁失去作用时的有电间隔网门；c）设备检修时，回路中所有来电侧隔离开关（刀闸）的操作手柄。",
+   "stable_id": "06b7aa3c06b57e0b1ba37e636320bc1e5039c55a"
+  },
+  {
+   "answers": {
+    "1.安全帽用于防御物体对头部造成冲击、刺穿、挤压等伤害；\n2.从事或进入存在物体坠落、撞击、碎屑飞溅的作业、高温作业、高处作业、人工搬运作业及铲、装、吊、推机械操作作业等的人员或场所应正确佩戴安全帽。": 4,
+    "1.安全帽用于防御物体对头部造成冲击、刺穿、挤压等伤害；2.从事或进入存在物体坠落、撞击、碎屑飞溅的作业、高温作业、高处作业、人工搬运作业及铲、装、吊、推机械操作作业等的人员或场所应正确佩戴安全帽。": 1
+   },
+   "chosen_answer": "1.安全帽用于防御物体对头部造成冲击、刺穿、挤压等伤害；\n2.从事或进入存在物体坠落、撞击、碎屑飞溅的作业、高温作业、高处作业、人工搬运作业及铲、装、吊、推机械操作作业等的人员或场所应正确佩戴安全帽。",
+   "stable_id": "8798b136903dd5a63896a77116096f543f8f3a64"
+  },
+  {
+   "answers": {
+    "A": 4,
+    "B": 4
+   },
+   "chosen_answer": "A",
+   "stable_id": "96d8bfa09be43b7b8568db9f7b55d67870f6a5d6"
+  },
+  {
+   "answers": {
+    "事故原因未查清不放过、责任人员未处理不放过、整改措施未落实不放过、有关人员未受到教育不放过。（答案要点）": 3,
+    "做到事故原因未查清不放过、责任人员未处理不放过、整改措施未落实不放过、有关人员未受到教育不放过。（答案要点）": 3
+   },
+   "chosen_answer": "做到事故原因未查清不放过、责任人员未处理不放过、整改措施未落实不放过、有关人员未受到教育不放过。（答案要点）",
+   "stable_id": "cd2aa21ab47c44e7648a65c90a3fbeec4a3ffcbc"
+  }
+ ],
+ "distinct_canonical_stems": 11381,
+ "parsing_merges": {
+  "groups": [
+   {
+    "canonical_options": "A-升级或备份|B-升级或配置更改|C-备份或性能优化|D-配置变更或性能优化",
+    "raw_options": [
+     "A-升级或备份|B-升级或配置更改|C-备份或性能优化|D-配置变更或性能优化",
+     "A-升级或备份||B-升级或配置更改|C-备份或性能优化|D-配置变更或性能优化"
+    ],
+    "samples": [
+     [
+      "33-1-电力监控安规-通用部分.xls",
+      40,
+      "A-升级或备份|B-升级或配置更改|C-备份或性能优化|D-配置变更或性能优化"
+     ],
+     [
+      "33-3-电力监控安规-调度自动化厂站专业.xls",
+      16,
+      "A-升级或备份||B-升级或配置更改|C-备份或性能优化|D-配置变更或性能优化"
+     ]
+    ],
+    "stable_id": "13cd54aefbd23a8839b9ef2ac5e481a328ab768a"
+   }
+  ],
+  "stable_ids": 1
+ },
+ "required_19": [
+  "1c528026e11d0b7ee16d89652f225aded486ae72",
+  "2370286aff15dbc33ada6dcd8f7bbc8f2f6bc202",
+  "3265d31ef1c596fa3fa665d626a56b90bed22f79",
+  "36c3e429209ab29a338c4d12c2718af8bb444164",
+  "38a0b4d5875ba15fb70d3fe415cad57c83933e5a",
+  "3a8c2ca4d41fa0b70a8f6b30a709747babbaa86f",
+  "3d1ee71f449e01bfdad38d31f3d0c28749cb08fb",
+  "3da0ae1955f4932fb12f4775c8c9ca8753766b69",
+  "3e2923f28ec1b1d540bf6c8b561cd10cfee3801b",
+  "66a0889eac0f47531bcfa7cdc16a82c80883997a",
+  "7d17d07044c478a73e3e654efe5ebfa0a0e9887b",
+  "81e313b787bdac35756703450aa0e0afde884fd2",
+  "b19af2251a30dcc5dd133296baa7929167159965",
+  "b564d321e65477b390c3f75db5bf6f070f705782",
+  "b5f207c8ee4d49fae61fc1f362d0f9106984246f",
+  "c8148d566d5f94250078d72ce17f8808f1a2369b",
+  "d0ee25cd1d196be24b719c86139d762a6787c969",
+  "f523b2150658122f6cee995e0c4202491116e568",
+  "f750358022dd9b24b3350ea40def81b4fc89b6cb"
+ ],
+ "rule": "stable_id = sha1(squash(题干) + '\\x1f' + 'A-squash(选项A)|B-...'), squash = 去全部空白；选项按 `| ｜ 丨` 切分、标签 `A- A. A． A、`、只认顺序字母；简答选项恒空；不含答案/分值/解析",
+ "shared_stems": {
+  "groups": [
+   {
+    "stable_ids": [
+     "b21b423ffdcc7a19d125a3e040c12ca1485afd0c",
+     "e4f33e652b56cdcf793b914028e1777bc15e6bfb"
+    ],
+    "stem_head": "依据《储能电站运行维护规程》规定，以下不属于储能电站储能系统",
+    "stem_sha1": "1077d6738a30943c422696e9f2537802f2dbee11"
+   },
+   {
+    "stable_ids": [
+     "8c3a6a1c003df0a717bfb4d855af454a0cab7658",
+     "918f36e6af254c5c35aa08103061e2df6f6a24a0"
+    ],
+    "stem_head": "依据《国家电网公司电力安全工作规程》（第5部分：风电场部分）",
+    "stem_sha1": "d391dc33b86294bee123fbd6d3e3d44f6e6bb0f1"
+   },
+   {
+    "stable_ids": [
+     "05b306b93da1d6f8bf533ac000cfa05ada59d251",
+     "3b47114f86fda262559b50933bad8b395b7836cd"
+    ],
+    "stem_head": "依据《国家电网有限公司绿智食堂建设标准》，对于食品添加剂的使",
+    "stem_sha1": "f7b2cf33e32514b2ec8ac1cf4ac837c4454efad5"
+   },
+   {
+    "stable_ids": [
+     "477bdac0ac4b44b026f158652d1f09dd55edf1c0",
+     "ad7a4b58642f928524734566ddabede7db2ef936"
+    ],
+    "stem_head": "依据《国家电网有限公司绿智食堂建设标准》，根据清洁程度，食品",
+    "stem_sha1": "726d1f5d56b03ad676a4c7c50d373607bdb2af51"
+   },
+   {
+    "stable_ids": [
+     "85ac904fe6fee4f11efdc5f04775f0ba096247a0",
+     "98519ff95467d9e83f09cac79014cb28317783f2"
+    ],
+    "stem_head": "依据《电力安全事故应急处置和调查处理条例》，事故报告应当包括",
+    "stem_sha1": "ab4a37653c74f8ccbf3e87186cc3ea2215645e76"
+   },
+   {
+    "stable_ids": [
+     "2ef04703dd509679579b180195f7a7e3883499b3",
+     "e117492a414490011498d4cf0fae80eb963a3596"
+    ],
+    "stem_head": "依据《电力安全事故应急处置和调查处理条例》，恢复电网运行和电",
+    "stem_sha1": "5818ff9b10d489edbf53c7a1718cc437f354e00d"
+   },
+   {
+    "stable_ids": [
+     "01b235445337b03d1755b5b15a0d93eb1ad58751",
+     "964ed88a542ff6a853f3aa848bb2a18565fc32ec"
+    ],
+    "stem_head": "依据变电安规，SF6气瓶应放置在（）的专门场所。",
+    "stem_sha1": "d3e7f993e3b81c699e0aa13bfcf54e0be1936327"
+   },
+   {
+    "stable_ids": [
+     "3cc7639e1e5e34827e407902062888e69686a195",
+     "f8b8fa0646c04c1630859e9479a00f9f40fa6ecd"
+    ],
+    "stem_head": "依据变电安规，下列项目应填入操作票内的是（）。",
+    "stem_sha1": "2489a55c21d9b451c156d154ac7f4c20f190a4d7"
+   },
+   {
+    "stable_ids": [
+     "b339ba6c9c194194c820e1fd8415d8bdba49f7b1",
+     "cab4567c9fc58f406017382fd4cb4c3355abba84"
+    ],
+    "stem_head": "依据变电安规，下列（）情况下应加挂机械锁。",
+    "stem_sha1": "c09be236053c48f0700b320f1f65cf244380b814"
+   },
+   {
+    "stable_ids": [
+     "74a81ebf5069c153247e7084494be8d69626dc8f",
+     "a17f6a8487879b846f91737d33820352fa5ed396"
+    ],
+    "stem_head": "依据变电安规，关于低压回路停电的安全措施，以下做法正确的是（",
+    "stem_sha1": "5fbf04e6339bb81f505e94e83fe24f7c0133977e"
+   },
+   {
+    "stable_ids": [
+     "4dae6688257b974d0acad8ddfe055f4f46ee60d1",
+     "95eb14b5be49deeaccaa9daf6bd3798daf808903"
+    ],
+    "stem_head": "依据变电安规，利用高空作业车、带电作业车、高处作业平台等进行",
+    "stem_sha1": "0718ff6a1328c4addd31510295a5964b8e8231d0"
+   },
+   {
+    "stable_ids": [
+     "2659ed1b0fa51f07168de210e647d784944b2e98",
+     "2d03e19d8886439815cad698e4693ebc20afa8f6"
+    ],
+    "stem_head": "依据变电安规，动火作业应有专人监护，动火作业前应（）。",
+    "stem_sha1": "f10d270ca3c1babd9a675fbbf0210d551100f57c"
+   },
+   {
+    "stable_ids": [
+     "616c394bee3a9a8e9a4207cfa505ebb170d69707",
+     "b4f96a0e0b3460dc4520e0367e6b3d8be99cebf2"
+    ],
+    "stem_head": "依据变电安规，动火工作完毕后，（）应检查现场有无残留火种，是",
+    "stem_sha1": "7afb7b6279163dd0444700609de226dbb2012af5"
+   },
+   {
+    "stable_ids": [
+     "479774cfdd573ff1c05ec1f3f06eb3b506a67453",
+     "7d1a5c198b70c3932dc2fcd4bb618b385c8b116a"
+    ],
+    "stem_head": "依据变电安规，在带电设备周围禁止使用（）进行测量工作。",
+    "stem_sha1": "b79cdd672bebdb49048e82ee86115d90c6b78788"
+   },
+   {
+    "stable_ids": [
+     "7ea4b2e584f62602a3c8cb903291ad1a8afe5496",
+     "f4a200424124580eb809af6355eb1f5f5fcbb3e4"
+    ],
+    "stem_head": "依据变电安规，在打开的SF6电气设备上工作的人员，应（）。",
+    "stem_sha1": "27426281e19eecf03a573e7698f34453e3bcec2d"
+   },
+   {
+    "stable_ids": [
+     "d9a27606a93b1fbeebb7835e66a55d3b0aeb1bf0",
+     "dea070bf3154d67ffd3b90f0bef9be5d3039aea7"
+    ],
+    "stem_head": "依据变电安规，在进行高处作业时，下列说法正确有（）。",
+    "stem_sha1": "e644052117e75491e8163811d0700333ad96fbfe"
+   },
+   {
+    "stable_ids": [
+     "63022aa7424f5f21f0589a85ce80a45719257dc8",
+     "bc4d69567e0523d326a3a4b279acfc0e0572b285"
+    ],
+    "stem_head": "依据变电安规，在露天使用起重机，应注意（）。",
+    "stem_sha1": "35234ae1b95820824194b5b1150486852f872179"
+   },
+   {
+    "stable_ids": [
+     "57e046b34e6b5b4384c5fddfa4a9fac9adacb4f6",
+     "8f06b9a06fdbe72571904af44c23a5574de65680"
+    ],
+    "stem_head": "依据变电安规，工作人员不准在SF6设备防爆膜附近停留。若在巡",
+    "stem_sha1": "ccb84c2871b5139158ac0498b4c454f1972a1e70"
+   },
+   {
+    "stable_ids": [
+     "26aba3f71440fd5cc482f693955f1d86134cc7a3",
+     "b122d3cf8c23e2c12deae1720d35cee640ef1f90"
+    ],
+    "stem_head": "依据变电安规，手持电动工器具如有（）或有损于安全的机械损伤等",
+    "stem_sha1": "a664cb123a5474321da689bb19851830fd30144a"
+   },
+   {
+    "stable_ids": [
+     "0638dd9149155c27f6e8ee4ef4fed07c93391115",
+     "165fa9a6053e7dddda5a6b62dbe3cfe03ba2245e"
+    ],
+    "stem_head": "依据变电安规，短时间退出防误操作闭锁装置时，应经（）或发电厂",
+    "stem_sha1": "0ea3e12a6991f0580180261c14131c069b2d996c"
+   },
+   {
+    "stable_ids": [
+     "4677e6a14fe4f023a550a4b6391f4a8361a1bfed",
+     "e0f1a6b5d6d28d10a2fa876042f66e2db42e7263"
+    ],
+    "stem_head": "依据变电安规，触电急救，当采用胸外心脏按压法进行急救时，伤员",
+    "stem_sha1": "7ee78b0eb3a38b38464c215792d55d2a1b3c7b13"
+   },
+   {
+    "stable_ids": [
+     "2c13ebeb4ae0c7e843fe58a645ca10761bace9b8",
+     "ddef2cb06c17012581cfe7ca2e0db148b5ecdcb4"
+    ],
+    "stem_head": "依据变电安规，起重设备的操作人员和指挥人员应经（）后方可独立",
+    "stem_sha1": "529910054a87918e2d3c701a615da41bd6819392"
+   },
+   {
+    "stable_ids": [
+     "e27a58b73722f7c968445aae4cee1472ab4012a7",
+     "ef263be66007567f1dd0e7869545470af2dab445"
+    ],
+    "stem_head": "依据变电安规，进行气体采样和处理一般渗漏时，应（）。",
+    "stem_sha1": "b3ccd898445f3d201ac422fcad08fcd710113c01"
+   },
+   {
+    "stable_ids": [
+     "116390768bc079b37f44d20c8388716aded7c337",
+     "b0d6274257f0223be397fd7585439ca75bd337b0"
+    ],
+    "stem_head": "依据变电安规，进行气体采样和处理一般渗漏时，要戴（）并进行通",
+    "stem_sha1": "d217c303254852942659719ebdd3046908187980"
+   },
+   {
+    "stable_ids": [
+     "a7027cd4ca7a915d3905edd9755fb6478f704256",
+     "d0002109a56e334e16498890ad1c14fd224612fd"
+    ],
+    "stem_head": "依据建设变电安规，关于安全绳说法正确的有（）。",
+    "stem_sha1": "dd4ef1a1343d4a50198707251e26a3a65ad6b7f1"
+   },
+   {
+    "stable_ids": [
+     "6b8ecaf862e43c0fd065db9b6287b0cdae34b776",
+     "dfe42882180b1047b8bc87b6252a242a1a05b97c"
+    ],
+    "stem_head": "依据建设线路安规，下列关于跨越架的说法正确的是（）。",
+    "stem_sha1": "d271fa473881331b3d3ca7464d72e150a3d876d5"
+   },
+   {
+    "stable_ids": [
+     "0d075f809037557c82bce7b7bfac209763dfd111",
+     "2d9050de6716e41ccfa2f105d5da44737b21cd61"
+    ],
+    "stem_head": "依据电力监控安规，作业过程中应使用（）、专用移动存储介质、专",
+    "stem_sha1": "08a1cebd747a4bcbaecc83f80e2b1a0f13e6b096"
+   },
+   {
+    "stable_ids": [
+     "3d7058cf8dab0d61a10664e08c7113c8c40adea2",
+     "68da0f91d10d4e35760954f0eb44686301c84c4c",
+     "e80c7e9d61a03daf85abffe77cb1c88f68e1e1cd"
+    ],
+    "stem_head": "依据电力监控安规，出现（）情况时，应及时修改电力监控系统账号",
+    "stem_sha1": "caa41a0fcececac2b3000f3c09af65383277c73b"
+   },
+   {
+    "stable_ids": [
+     "70af94b1d89be0bc41544f706f8bcd9ca1f217a4",
+     "cb7d1ee83d1089db3b8ed73ba7e16e9c21440fa3"
+    ],
+    "stem_head": "依据电力监控安规，新增、更换非热插拔部件前，应核对设备（）。",
+    "stem_sha1": "06d37653c1a172ea8968486cec48230f03b22fcd"
+   },
+   {
+    "stable_ids": [
+     "30a935a5a18f9d732420a30121a7d8da5289a452",
+     "bc71050545af85b671da3a012facfb425a0dd4ac"
+    ],
+    "stem_head": "依据电力监控安规，设备、业务系统接入（）或（）应经相应电力监",
+    "stem_sha1": "60a499f2a4833b77b620e72439b6bbd77315accf"
+   },
+   {
+    "stable_ids": [
+     "333e1847593ee7b4a5661202f6d3af3114a63fd0",
+     "eebb1bec681a4b87747dd81b59ca061a20f59772"
+    ],
+    "stem_head": "依据线路安规，在500kV带电线路杆塔上工作，作业人员活动范",
+    "stem_sha1": "96a8eeb6277e45374177a0ed035c3580ce77b3dd"
+   },
+   {
+    "stable_ids": [
+     "0ea548e552e2ca77afbed6786b0943458b4d85d5",
+     "d9ec69baf8d185b830806b122ad5d78bf0eb11d9"
+    ],
+    "stem_head": "依据配电安规，值班调控人员、运维人员在向工作负责人发出许可工",
+    "stem_sha1": "4adf615ec8ad6e036d1eb884d6d021f66ee68863"
+   },
+   {
+    "stable_ids": [
+     "84afb55fbd47ff2bf9910b83d4d1735db37a4867",
+     "a1632d45fd8fdeec74638f3716a61ffe7065ca0f"
+    ],
+    "stem_head": "依据配电安规，带电作业需要停用重合闸（含已处于停用状态的重合",
+    "stem_sha1": "8ae4fa946bee292c3c75c664bc20742db165410e"
+   },
+   {
+    "stable_ids": [
+     "4b44bdcfb6ad75d5c78d8ca15ba781fccde04dfe",
+     "75813b9498659d10817a5d2135023d9dda8f7224"
+    ],
+    "stem_head": "依据配电安规，打开环网柜柜门前，应先（）。",
+    "stem_sha1": "debd5f526237d9fb645ec620bed9140d725c8614"
+   },
+   {
+    "stable_ids": [
+     "66aa0e267ce37ebf278cf71c75b3c8a8cd703845",
+     "f2e483437a9d0e3f2083b5dcb097668e7ce22c15"
+    ],
+    "stem_head": "某电力公司的安全设施不符合国家规定，造成2名工人在进行电缆管",
+    "stem_sha1": "263a9ba3dbffe641328699c7b8192d5bd8874c92"
+   },
+   {
+    "stable_ids": [
+     "16802051d72a9f8535228e9e325c34f627b0b0b7",
+     "1e05274d1303b52d96a672f23698bfe52b5dcc66"
+    ],
+    "stem_head": "根据《安全生产许可证条例》的规定，（）应当申请安全生产许可证",
+    "stem_sha1": "2f2e7fc32582da2a3244a06f73bb92e0ac88b268"
+   },
+   {
+    "stable_ids": [
+     "48196078a04b910c4408eb2bb1de75626ce2e49a",
+     "abe3ec49d92e05c3ed47e933d5a8b37f8051d1af"
+    ],
+    "stem_head": "根据信息安规规定，作业人员应被告知其作业现场和工作岗位存在的",
+    "stem_sha1": "f96047cf7109ebb16318d75b38f9b1c9cf2b869f"
+   },
+   {
+    "stable_ids": [
+     "6a0114e7d5aede6907f938edff36b88b69947f07",
+     "7e1946dc7eeafb507d44d75740d9538d5f86d536"
+    ],
+    "stem_head": "根据信息安规规定，信息系统的（）等应定期备份，备份的数据宜定",
+    "stem_sha1": "f68666227db2c82d9547ed38e166a09048ad30bd"
+   },
+   {
+    "stable_ids": [
+     "a2d045ba088e6d70891f37807d5c4fc68c263864",
+     "b1938d1aba5ac1d6d6f8f6f696e47aa1116e209b"
+    ],
+    "stem_head": "根据信息安规规定，在信息系统上工作，保证安全的组织措施有哪些",
+    "stem_sha1": "2142193bd6d5ad34b962227bb78da4764f858a2d"
+   },
+   {
+    "stable_ids": [
+     "594776fd414d5d42ec92f4528dc9394640535fd6",
+     "e1ae543df9a58fb64ab9093e3f91c87b24d8e9bf"
+    ],
+    "stem_head": "根据信息安规规定，数据库检修前，应备份可能受影响的（）等。",
+    "stem_sha1": "b65fe8878c4f024a206ac717d601ce864b612c05"
+   },
+   {
+    "stable_ids": [
+     "8f6e4eb3fad645dfae6961a6439d3adf92113974",
+     "ed0f7b07e2385db4f2224940336c6169d3694dc0"
+    ],
+    "stem_head": "根据信息安规规定，检修工作如需停运数据库、中间件、云平台组件",
+    "stem_sha1": "cae5164f6083c6f4c7f629261c222104563e7f02"
+   },
+   {
+    "stable_ids": [
+     "56c2fc26ae545e64afc6d11b7b9500e22cd31438",
+     "bf467ff769548fd1804cf495acb42d3fb635e658"
+    ],
+    "stem_head": "根据电工制造安规规定，交叉作业场所的出入口应设（）。",
+    "stem_sha1": "37b4c4d8e5c87f73679be7feeaeec7f03daac7ed"
+   },
+   {
+    "stable_ids": [
+     "5ecba8a341358649bc3f2640d5d719bd802e233c",
+     "a17d6359bb32e9d6b89cf5f0543342d35cf1f318"
+    ],
+    "stem_head": "根据电工制造安规规定，对桥式起重机的使用规定，下列中正确的是",
+    "stem_sha1": "2581aa8b62a6e9ccd170b2e9335578504adea0d6"
+   },
+   {
+    "stable_ids": [
+     "1e11f4e76d34520dc61bb922d032431a7b2af319",
+     "b61943129740e55f142532410aec6b3d27c4fdce"
+    ],
+    "stem_head": "根据电工制造安规规定，生产作业场所入口醒目位置，应根据内部设",
+    "stem_sha1": "1278d0b9712b0119867e979407e5ee58f1d7a950"
+   },
+   {
+    "stable_ids": [
+     "8a90e757db5f27db9a9a29d0981b57c1639f8093",
+     "d6caf12b49b1ff7a16632ab843e2be6179272022"
+    ],
+    "stem_head": "根据营销安规规定，下面说法不正确的是（）。",
+    "stem_sha1": "44972605b30da88e43790fe749e14e0c90230bae"
+   },
+   {
+    "stable_ids": [
+     "63c7952f66337168791ba6c989f563c452710820",
+     "d59ccbde84c17c2f657e97ead7faf0d256de940e"
+    ],
+    "stem_head": "根据营销安规规定，业扩报装工作要求（）进行现场安全交底，做好",
+    "stem_sha1": "bc4c272992d850b8950da507c728188a8a6ba3f4"
+   },
+   {
+    "stable_ids": [
+     "087c2759388bd3ce879375b56b226f37a7f141cd",
+     "11a5b2804409e373347eec2edb07371f676216ee"
+    ],
+    "stem_head": "根据营销安规规定，严肃作业计划管控，健全计划管理组织体系和工",
+    "stem_sha1": "d3bb1efa5d0357b577d83ecb3e35bdec530ccb29"
+   },
+   {
+    "stable_ids": [
+     "2cb673740e51070d5f7777326b22833c362f9f4a",
+     "ea3077c9d0a785a6b9de8f5a894f252160f71dec"
+    ],
+    "stem_head": "根据营销安规规定，二次工作安全措施票的工作内容及安全措施内容",
+    "stem_sha1": "8d0fbde4f9f926bb7bdf2b5221d1ed7d3397fe5e"
+   },
+   {
+    "stable_ids": [
+     "0521e62e481bea1e4aecc5e5aba6ec897351fcb5",
+     "79337323c37892a36d2146ee3c348de458e496d6"
+    ],
+    "stem_head": "根据调相机安规规定，对涉及多专业、多单位的大型复杂作业项目，",
+    "stem_sha1": "b74734856ab712edfd030506490d7fb45128f5a3"
+   },
+   {
+    "stable_ids": [
+     "c7dffd623d269c624b1c87323d1d2d27f31b0680",
+     "c931d7b54be9c9148b69fe94ec2a6e2a0d075688"
+    ],
+    "stem_head": "根据通信安规规定，一张电力通信工作票中，（）不应互相兼任。",
+    "stem_sha1": "afad25f386ebfdbd9fca57bd7754aa2f52f03f8c"
+   },
+   {
+    "stable_ids": [
+     "b52a4ee7c14d916f413ede3ad93d667559a20cb4",
+     "f74ce7a439dd523ac7d9f4fbd0970a5fc6d6d00c"
+    ],
+    "stem_head": "根据通信安规规定，业务通道投退时，应及时更新业务（）。",
+    "stem_sha1": "a16c7887f0403c129e95b6bd0641cb6e20baddd7"
+   },
+   {
+    "stable_ids": [
+     "7bd74bca3579013b27497bc24221fbd47ed6691c",
+     "a1accf53a4e412b91f7e53d370d6ececc965507c"
+    ],
+    "stem_head": "根据通信安规规定，双路交流输入切换试验前，应验证（）正常工作",
+    "stem_sha1": "35c8eeda931851a5b33c42e2fc9d50ee79b4d313"
+   },
+   {
+    "stable_ids": [
+     "41cc4aed136fde4eaa8eb0c4d6642b7960ef6819",
+     "817af352b628bd036605cb9c592cbf8e1410c70e"
+    ],
+    "stem_head": "根据通信安规规定，在断开（）等无线设备的天线与馈线的连接前，",
+    "stem_sha1": "ec6f23844a989525b93a1d8b0cf41c45a7cb24e1"
+   },
+   {
+    "stable_ids": [
+     "b9332dd770e0b8d2c5b9aa00c22cdca18de9c498",
+     "e5dce5d2f8711af6fb7667b7fab7c66f1f0c3bd2"
+    ],
+    "stem_head": "根据通信安规规定，在电力通信系统上工作，保证安全的技术措施有",
+    "stem_sha1": "806cdbb6631fa501e400e4a134e9e1093802dacd"
+   },
+   {
+    "stable_ids": [
+     "daab8fb772ece1dd2d52c1d2d072638c51dc2bc0",
+     "fe22c9233a8a42b8aee377f7cb9c25abf73894e6"
+    ],
+    "stem_head": "根据通信安规规定，存放设备板卡宜采用（）等防静电包装。",
+    "stem_sha1": "8a5a14040294dd106786f9c086a4035bdfcca79e"
+   },
+   {
+    "stable_ids": [
+     "b408133fe1511d8adeeb2723194578ada5b738e7",
+     "cfc5b819a755f4c7cd19363b682efab23f2001d8"
+    ],
+    "stem_head": "根据通信安规规定，安装电力通信设备前，宜对机房作业现场（）等",
+    "stem_sha1": "10f7b6785b3cd02ca0244c36caa8bccf490996eb"
+   },
+   {
+    "stable_ids": [
+     "22a108d30a0b083555abcf8c39c9062809c9e696",
+     "eeb7c3f7319bc820891600a176c352122580599f"
+    ],
+    "stem_head": "根据通信安规规定，巡视时未经批准，不应更改、清除（）告警信息",
+    "stem_sha1": "63293593fe7b5312c611484f7ab5d1212e4de600"
+   },
+   {
+    "stable_ids": [
+     "0cd2cd9355c7ffa0a09a0d719aae55d3986e0b4a",
+     "375af0098a0ca0bc9d8b26c74b3b13796fde85a7"
+    ],
+    "stem_head": "根据通信安规规定，工作前，应对网管系统操作人员进行（）。",
+    "stem_sha1": "cbf36be50bc61e49adce587dfe72e3fc16975b06"
+   },
+   {
+    "stable_ids": [
+     "693de918dff36e511a29ac836c48c396cebf7440",
+     "fb8bdeaea361877072c17576e1f4650035ec641d"
+    ],
+    "stem_head": "根据通信安规规定，授权应基于（）的原则。",
+    "stem_sha1": "71aa5387733413c5cc091fc8a8d483c73466248d"
+   },
+   {
+    "stable_ids": [
+     "49e8ca18ca8a96652bff42c46b4097f132ac3205",
+     "71d4d4a17d6b2743bb1bede257216cf8886bb6f5"
+    ],
+    "stem_head": "根据通信安规规定，检修过程中发生数据（）或（），应进行恢复操",
+    "stem_sha1": "6ead18f02834328c5b88ad386531bdb1ef3fc479"
+   },
+   {
+    "stable_ids": [
+     "d62ef1bd2e86c59ef5561c2b643de1af3c74fb56",
+     "e751a5ad4bd08ae6ea9215cb3f2d949bdba08050"
+    ],
+    "stem_head": "根据通信安规规定，电力通信网管检修工作开始前，应对可能受到影",
+    "stem_sha1": "44200a91a401742a1a7362af985543c7847c5574"
+   },
+   {
+    "stable_ids": [
+     "3b7dfb3f0983a71aecbb6f41fe6a1740fae81d2f",
+     "9d699ecc64ddf7a315b01e771354af7a7a559125"
+    ],
+    "stem_head": "根据通信安规规定，电力通信网管的（）应按需分配，不应使用开发",
+    "stem_sha1": "b2909d9ad1281bc8dfc63999eb331ab993fed5a6"
+   },
+   {
+    "stable_ids": [
+     "a9a0b18e75bcdc88ff47bdce73a763ace1cfab8f",
+     "b136735d7cdde0f9ffc837f3c3e1325544528c66"
+    ],
+    "stem_head": "根据通信安规规定，电源设备断电检修前，应确认负载已（）或（）",
+    "stem_sha1": "c021551e46697484837a07a9cdf10332c2220bc0"
+   },
+   {
+    "stable_ids": [
+     "0d47660880d156abab902d4b1e06715a0ed1c0e0",
+     "66db380bcc6404b7c4e98521ed334641d4224efc"
+    ],
+    "stem_head": "根据通信安规规定，许可开始工作的命令应通知工作负责人，其方法",
+    "stem_sha1": "9b929d01a2381c57c6a44bf3c0f3423c5e1ccb12"
+   },
+   {
+    "stable_ids": [
+     "992f3c772833026d68fe96ec9e231491254b06dd",
+     "efc9526474d97fb37e6e0078e2bac80cb8063d0f"
+    ],
+    "stem_head": "根据通信安规规定，设备通电前，应验证供电线缆（）。",
+    "stem_sha1": "0d7cc00bef2d59428432e45b173b2fe939b5ec2b"
+   },
+   {
+    "stable_ids": [
+     "46b1a419e99f8b53769d817256fcbc497883d489",
+     "a58605d622213b65a1e060a09c4ff0bc25d1e28e"
+    ],
+    "stem_head": "根据通信安规规定，配置旁路检修开关的（）设备检修时，应严格执",
+    "stem_sha1": "6828d8986ab0701325f9d6ce91b87e31cedbff86"
+   },
+   {
+    "stable_ids": [
+     "25ae4e3368ab8edb7724cd83d2383f4a11c7e068",
+     "40f51e7eb6ebecd7fa6fb20fbfa31d8a8966d75d"
+    ],
+    "stem_head": "根据通信安规规定，（）前，应核查电源（），并确保各级开关容量",
+    "stem_sha1": "01edb498d78ebf9f04d7d0012330a22fcca3e503"
+   },
+   {
+    "stable_ids": [
+     "3afdbf47aad7b3d88727caee1a3d4340fdda1f13",
+     "c8a266c576636fe6f407698022687d8e81bcbd23"
+    ],
+    "stem_head": "根据通信安规规定，（）或（）蓄电池连接铜排或线缆时，应使用经",
+    "stem_sha1": "aff9462e0e6031a120241ed4502298e78e44a2c9"
+   }
+  ],
+  "stable_ids": 137,
+  "stems": 68
+ },
+ "unique_stable_ids": 11450,
+ "标黄必": {
+  "files": [
+   "配电安规-通用部分+各子专业保命题（标黄必.xls"
+  ],
+  "match": "标黄必",
+  "rows": 119,
+  "stable_ids": [
+   "010d451eaa35b96312f838bbe87347e05ab6e5fa",
+   "05f6cedd3d780c28c49032e899ddce2efc708521",
+   "08362a703a42f55d9b83f8aab6be3b501dfa38de",
+   "09d02e70ce53c3371b0be26e00cacde7d76c74f5",
+   "0a2b52d7172038acad999163bf013e81be8f7337",
+   "0e87103d2653422358fa73150595713cceffd4e2",
+   "13e19331bf32f52336845fa78ad99518d27b1117",
+   "1a60ec1649f00d8d96c65e3dc4cb92dceeda97af",
+   "1c528026e11d0b7ee16d89652f225aded486ae72",
+   "1ec4352dde4ef28cc6f31d91310af43f37f541ce",
+   "21c19ca757170a1be0142b321d34477c2bf5a61f",
+   "2370286aff15dbc33ada6dcd8f7bbc8f2f6bc202",
+   "2e4d9f5827f883f3323adf5dcdc5c305adadeb5d",
+   "30ce3d23ed3d272d1a440638a4c94ece5de7c6ca",
+   "3265d31ef1c596fa3fa665d626a56b90bed22f79",
+   "36c3e429209ab29a338c4d12c2718af8bb444164",
+   "378e98897f6337d870a7e95c0d8d343629aed6c3",
+   "38272beacb4af63651be39111a12765b60eecdb4",
+   "382c1236761900e94eab7b6dc59d990590b71ccb",
+   "38a0b4d5875ba15fb70d3fe415cad57c83933e5a",
+   "394d14c51162433f5a2ed460669f8962fc6bb7db",
+   "3a8c2ca4d41fa0b70a8f6b30a709747babbaa86f",
+   "3ae783ac3e7df7a92557fcc10adee7618013700a",
+   "3afdbf47aad7b3d88727caee1a3d4340fdda1f13",
+   "3c52cdb27332d5ab9366116b2a33142e5ce201b2",
+   "3d1ee71f449e01bfdad38d31f3d0c28749cb08fb",
+   "3da0ae1955f4932fb12f4775c8c9ca8753766b69",
+   "3e2923f28ec1b1d540bf6c8b561cd10cfee3801b",
+   "3fa3e3d5452a383016165e8aea547cc7bdca9295",
+   "48a88912fde13e58fff10c27ee454c0411620691",
+   "4c2e71ba007201689206c09cccbd83ecee5a7ada",
+   "4f605a850bee650733dcb37940408924db8b173f",
+   "52ac5a6f18f0f41acdf8b3d50ec502424f9b69ce",
+   "56a5d9fa4f1a8c9d1a58ee35e67e4586bee76faf",
+   "59453a78c22b94e42a45d8509f977025e76c317c",
+   "5e8f38867235f65a96a687c9b3c09b6a1aa3a4e9",
+   "62928af4c2e5f9e63bd67b50df333c33d5a4a960",
+   "660b0ea32ea8e48d1848a123aaaac5fbc8d62170",
+   "66a0889eac0f47531bcfa7cdc16a82c80883997a",
+   "6e84dbee210780906d0cc749f836ba1ce5c26254",
+   "717ff044bffe5acabee23cc7d3352f3052617021",
+   "7500c1063692d831c0c92fae3f647690513c8e92",
+   "75813b9498659d10817a5d2135023d9dda8f7224",
+   "7686a489c98527bef4e4ea6befa7aaf98d3c07ad",
+   "7c4b6ba723782dc8ab1a78c6b85552abfdc14417",
+   "7c522145b4ae02d1c4fc7e396d205cf92edf3bd4",
+   "7d17d07044c478a73e3e654efe5ebfa0a0e9887b",
+   "7ef5f4eb7a638ffc61602a261818c525a118ec28",
+   "81e313b787bdac35756703450aa0e0afde884fd2",
+   "84c8805bf3390c546e169ac96e765e29256f7ecf",
+   "85778dcbbab85648c7ac122dea9d606d3485734a",
+   "899806b243515877646fe7ce462b998022b75a24",
+   "89eb416f78bc556b198334063d5d638ee094d410",
+   "8f36520088d2743ee9d363c44f4a9dac44e2bf42",
+   "921a4177596de416fe537c58eb460ba3148cf9bf",
+   "9502b782227ec43f0eca889fb8d45c41d81a456d",
+   "a0bf9feb84532f06190df292b0614ab04a078354",
+   "a78d212f5b68ae2d14083524f4b8f2eeb96c4172",
+   "a87f8bbdfa37b00a3f248fa669b2f615829f9126",
+   "a906ab43e223f30757f6163a86f385ef59fcecbd",
+   "aae8aa70d2675e6d10915e4e5915cbcd73056fa3",
+   "abe3ec49d92e05c3ed47e933d5a8b37f8051d1af",
+   "ad4bbb440218aac01931f4a25657c3574b4bacf5",
+   "ae9f69125326c83cc92223b8831c9e3f36893141",
+   "b1938d1aba5ac1d6d6f8f6f696e47aa1116e209b",
+   "b19af2251a30dcc5dd133296baa7929167159965",
+   "b20ddc383952533c9d8815dab47407d7fc442507",
+   "b4a6b84674a1a8606a50fa4964102d4880d5c7b3",
+   "b50354474928a4c48a14974cca982e82b3be94b5",
+   "b564d321e65477b390c3f75db5bf6f070f705782",
+   "b5f207c8ee4d49fae61fc1f362d0f9106984246f",
+   "b874e6eea7e5107e1748b5b3189da104af03274c",
+   "b899f8b29e8845c745bd4f0ffe70aa632462e64a",
+   "b9d8369a970363811f75adb6479363575b2dc188",
+   "bb2c60e4854835dd055a202ee5d3885daa9231d6",
+   "bbe06a886500400dd156b558d321fbfc58d61b95",
+   "c2c4c71a33f44253d3153dbdb7ab1ff57aa00699",
+   "c2ce552e00c1babaaad8e0ff46fddea75d09dcbd",
+   "c3e772530a1b6797b2437ff2b4e6be9bf4151f1b",
+   "c8148d566d5f94250078d72ce17f8808f1a2369b",
+   "c815f24ca7d0ad01dabcae3401b2a7271bd12d9c",
+   "c8d1905a904a6c57aab1cb37a5c68b43ba17719e",
+   "d0ee25cd1d196be24b719c86139d762a6787c969",
+   "d2f33ad1fc93b973f1402108f284e47037117b44",
+   "d70011c706fe52bda8e941c28f2aa7e243d7e3ce",
+   "d8132a223fbe457eb1b04ea4653f9f706ff50286",
+   "d8bf878a36f72582c5477f75b0dab3063b80d4a0",
+   "d98def763cf3bafd7c472683baa915803017e17c",
+   "dbbe5d89d98d4bc0e84813224244be0df99b224f",
+   "dc4725abae7393fd47625823d1654f2d03113e28",
+   "dec44739e76f7606f89f9f72e8be5b14e29cbaf0",
+   "df0164008498c41d6188a25539350bec7f8c1db7",
+   "e1ae543df9a58fb64ab9093e3f91c87b24d8e9bf",
+   "e2e648e108fa8878752690b52e8ce458ce91154c",
+   "e3fcfd470045374c40929897533f7a2b3e0a19a7",
+   "e9ecdd18fe354a08f2ceda195b9d39fa78c133fe",
+   "eb051169cf006dd013d076ca5d595090598f89e3",
+   "ec609d9d873f30c1b58361314f9e229571c875d2",
+   "efd9287a863394231b91d21fa5ff03daae90d1cf",
+   "f017097f9f003d51c651d39e0ae78bda772991a9",
+   "f26edef3b62ad3d62f66ffd0584c249475bfcb97",
+   "f319fa56451c1fd95799d84025d9a484545b2ea4",
+   "f3380ecccede4096e0d62437412d8ff3550dcceb",
+   "f455a01dbed21171f04ef6ec0d05e63b00d4950e",
+   "f523b2150658122f6cee995e0c4202491116e568",
+   "f6219172b2ae060f3412be6950617864d3b0926b",
+   "f750358022dd9b24b3350ea40def81b4fc89b6cb",
+   "fa7b924b233e849099e6664b6a96ef40dd10e1cc"
+  ],
+  "unique": 108
+ }
+}

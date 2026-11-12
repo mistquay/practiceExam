@@ -1,2 +1,12 @@
 题目*
 __pycache__
+.alma-snapshots
+data/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 内部题库原始资料与导入模板（含考试题原件），不进公开仓库
+/2026-11-12/
+*.xls.zip

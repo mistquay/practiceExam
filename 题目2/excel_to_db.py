@@ -163,6 +163,12 @@ def process_excel_files():
         try:
             print(f"正在读取: {f}")
             df = read_excel_with_auto_header(f)
+
+            file_base = os.path.splitext(os.path.basename(f))[0]
+            file_full = os.path.basename(f)
+
+            df["source_file"] = file_base
+
             df.columns = [str(c).strip() for c in df.columns]
 
             # 给每个df计算 category（兼容两套格式）
@@ -244,6 +250,7 @@ def process_excel_files():
 
     # 最终需要的列（保持你的练习工具复用）
     final_cols = [
+        "source_file",   # 新增：文件名（不带后缀）
         "category", "type", "question", "options", "answer",
         "explanation", "analysis", "score", "codeId", "remarks", "Description"
     ]

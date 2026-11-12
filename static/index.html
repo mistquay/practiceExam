@@ -2,135 +2,32 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <title>题库练习系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#16224a" />
+    <meta name="description" content="题库练习与考试系统：选题、练习、错题本与在线考试" />
+    <title>题库练习与考试系统</title>
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="/static/style.css?v=1" />
+    <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    <div class="app-container container my-3 my-md-4">
-      <header class="app-header mb-3">
-        <h1 class="h3 mb-1">题库练习系统</h1>
-        <p class="text-muted small mb-0">
-          支持随机练习、指定类别，练习模式、考试模式与模拟考试
-        </p>
-      </header>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#/">题库练习与考试系统</a>
+        <nav id="main-nav" class="main-nav" aria-label="主导航"></nav>
+        <div id="user-info" class="user-info"></div>
+      </div>
+    </header>
 
-      <section class="controls card mb-3">
-        <div class="card-body">
-          <div class="row g-3 align-items-end">
-            <div class="field col-12 col-md-3">
-              <label for="modeSelect" class="form-label">模式</label>
-              <select id="modeSelect" class="form-select form-select-sm">
-                <option value="practice">随机练习模式（做一题看一题）</option>
-                <option value="sequence">顺序练习模式（按题号）</option>
-                <option value="exam">考试模式（做完统一评分）</option>
-                <option value="mock">模拟考试模式（整卷约100分）</option>
-                <option value="wrong">错题练习（从错题本抽题）</option>
-              </select>
-            </div>
+    <main id="app" class="container"></main>
 
-            <div class="field col-12 col-md-3">
-              <label for="categorySelect" class="form-label">类别</label>
-              <select
-                id="categorySelect"
-                class="form-select form-select-sm"
-              >
-                <option value="">全部类别</option>
-              </select>
-            </div>
+    <noscript>
+      <div class="container"><div class="alert alert-danger">请启用 JavaScript 后使用本系统。</div></div>
+    </noscript>
 
-            <div class="field col-12 col-md-3">
-              <label for="sourceFileSelect" class="form-label">来源文件</label>
-              <select id="sourceFileSelect" class="form-select form-select-sm">
-                <option value="">全部来源</option>
-              </select>
-            </div>
-
-            <div class="field col-12 col-md-3">
-              <label for="typeSelect" class="form-label">题型</label>
-              <select id="typeSelect" class="form-select form-select-sm">
-                <option value="">全部题型</option>
-              </select>
-            </div>
-
-            <div class="field col-6 col-md-2">
-              <label for="countInput" class="form-label">题目数量</label>
-              <input
-                id="countInput"
-                type="number"
-                min="1"
-                max="500"
-                value="20"
-                class="form-control form-control-sm"
-              />
-            </div>
-
-            <div class="col-12 col-md-4 d-flex flex-wrap gap-2">
-              <button id="startButton" class="btn btn-primary btn-sm">
-                开始做题
-              </button>
-              <button
-                id="clearWrongBookButton"
-                class="btn btn-outline-secondary btn-sm"
-              >
-                清空错题本
-              </button>
-              <button
-                id="clearPracticedButton"
-                class="btn btn-outline-secondary btn-sm"
-              >
-                清空练习记录
-              </button>
-            </div>
-
-            <div class="col-12">
-              <div id="statusMessage" class="status small text-muted mt-1"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="practicePanel" class="panel card hidden">
-        <div class="card-body">
-          <h2 class="h5 mb-3">练习模式</h2>
-        <div id="practiceNav" class="question-nav"></div>
-        <div id="practiceQuestionContainer"></div>
-          <div class="panel-actions mt-3 d-flex flex-wrap gap-2">
-            <button id="submitPracticeButton" class="btn btn-primary btn-sm">
-              提交本题
-            </button>
-            <button
-              id="nextPracticeButton"
-              class="btn btn-outline-secondary btn-sm"
-              disabled
-            >
-              下一题
-            </button>
-          </div>
-          <div id="practiceFeedback" class="feedback mt-2"></div>
-          <div id="practiceProgress" class="progress mt-2"></div>
-        </div>
-      </section>
-
-      <section id="examPanel" class="panel card hidden">
-        <div class="card-body">
-          <h2 class="h5 mb-3">考试模式</h2>
-        <div id="examNav" class="question-nav"></div>
-        <div id="examQuestionsContainer"></div>
-          <div class="panel-actions mt-3 d-flex flex-wrap gap-2">
-            <button id="submitExamButton" class="btn btn-primary btn-sm">
-              交卷并查看结果
-            </button>
-          </div>
-          <div id="examSummary" class="summary mt-2"></div>
-        </div>
-      </section>
-    </div>
-
-    <script src="/static/app.js?v=1"></script>
+    <script type="module" src="/static/app.js"></script>
   </body>
-  </html>
+</html>

@@ -1,6 +1,11 @@
-fastapi
-uvicorn[standard]
-pandas
-openpyxl
-xlrd==1.2.0
-
+# 运行时依赖：生产镜像只装本文件；pandas / openpyxl / xlrd 属于离线 ETL，见 requirements-etl.txt
+# Python 3.14.4 / ame 环境安装请用 --only-binary=:all:（只取预编译 wheel，避免源码编译）：
+#   /d/services/mamba_envs/ame/python.exe -m pip install --only-binary=:all: -r requirements.txt
+# 版本只给下限，不锁死；内网离线机先 pip download 预置 wheel 或分发整包镜像。
+fastapi>=0.115
+uvicorn[standard]>=0.30
+SQLAlchemy>=2.0
+bcrypt>=4.0
+PyYAML>=6.0
+python-multipart>=0.0.9
+alembic>=1.13

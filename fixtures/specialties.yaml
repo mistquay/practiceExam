@@ -1,0 +1,32 @@
+# 专业代码表（第一版）—— 状态：待 dong 确认
+#
+# 来源：2026-11-12/{一线人员,重点人员,专业管理人员}/专业自选（除选通用部分外，再加一个子专业）/ 下 22 个文件
+#       （三个目录内容 MD5 完全一致）。
+# 映射规则：题目只要有任一行来自 basename == source_file_pattern 的文件，即打上该专业标签。
+# 决策（待 dong 确认）：
+#   * 本次只开放「配电安规通用」+「配电带电」两个专业（通知原文「专业一般是配电安规通用、配电带电作业」）；
+#   * 其余 20 个专业建档但 enabled=false；
+#   * 通知中的「配电带电作业」在资料里的真实文件名是 30-4-配电安规-配电带电专业.xls。
+specialties:
+  - {code: bd_general,      name: 变电安规通用,       outline_l1: 变电安规,     outline_l2: 通用部分,         source_file_pattern: 29-1-变电安规-通用部分.xls,             is_general: true,  enabled: false, sort_order: 10}
+  - {code: bd_ops,          name: 变电运维,           outline_l1: 变电安规,     outline_l2: 变电运维,         source_file_pattern: 29-2-变电安规-变电运维专业.xls,         is_general: false, enabled: false, sort_order: 11}
+  - {code: bd_primary,      name: 变电一次检修,       outline_l1: 变电安规,     outline_l2: 变电一次检修,     source_file_pattern: 29-3-变电安规-变电一次检修专业.xls,     is_general: false, enabled: false, sort_order: 12}
+  - {code: bd_secondary,    name: 变电二次检修,       outline_l1: 变电安规,     outline_l2: 变电二次检修,     source_file_pattern: 29-4-变电安规-变电二次检修专业.xls,     is_general: false, enabled: false, sort_order: 13}
+  - {code: bd_hv_test,      name: 高压试验,           outline_l1: 变电安规,     outline_l2: 高压试验,         source_file_pattern: 29-5-变电安规-高压试验专业.xls,         is_general: false, enabled: false, sort_order: 14}
+  - {code: bd_live,         name: 变电带电作业,       outline_l1: 变电安规,     outline_l2: 变电带电作业,     source_file_pattern: 29-6-变电安规-变电带电作业专业.xls,     is_general: false, enabled: false, sort_order: 15}
+  - {code: bd_dispatch,     name: 监控（主网调度）,   outline_l1: 变电安规,     outline_l2: 监控（主网调度）, source_file_pattern: 29-7-变电安规-监控、主网调度专业.xls,   is_general: false, enabled: false, sort_order: 16}
+  - {code: pd_general,      name: 配电安规通用,       outline_l1: 配电安规,     outline_l2: 通用部分,         source_file_pattern: 30-1-配电安规-通用部分.xls,             is_general: true,  enabled: true,  sort_order: 20}
+  - {code: pd_primary,      name: 配电一次运检,       outline_l1: 配电安规,     outline_l2: 配电一次运检专业, source_file_pattern: 30-2-配电安规-配电一次运检专业.xls,     is_general: false, enabled: false, sort_order: 21}
+  - {code: pd_secondary,    name: 配电二次运检,       outline_l1: 配电安规,     outline_l2: 配电二次运检专业, source_file_pattern: 30-3-配电安规-配电二次运检专业.xls,     is_general: false, enabled: false, sort_order: 22}
+  - {code: pd_live,         name: 配电带电,           outline_l1: 配电安规,     outline_l2: 配电带电专业,     source_file_pattern: 30-4-配电安规-配电带电专业.xls,         is_general: false, enabled: true,  sort_order: 23}
+  - {code: pd_dispatch,     name: 配网调控,           outline_l1: 配电安规,     outline_l2: 配网调控专业,     source_file_pattern: 30-5-配电安规-配网调控专业.xls,         is_general: false, enabled: false, sort_order: 24}
+  - {code: pd_cable,        name: 配电电缆,           outline_l1: 配电安规,     outline_l2: 配电电缆专业,     source_file_pattern: 30-6-配电安规-配电电缆专业.xls,         is_general: false, enabled: false, sort_order: 25}
+  - {code: pd_construction, name: 配电施工,           outline_l1: 配电安规,     outline_l2: 配电施工专业,     source_file_pattern: 30-7-配电安规-配电施工专业.xls,         is_general: false, enabled: false, sort_order: 26}
+  - {code: comm_safety,     name: 通信安规,           outline_l1: 通信安规,     outline_l2: null,             source_file_pattern: 34-通信安规.xls,                        is_general: false, enabled: false, sort_order: 30}
+  - {code: info_safety,     name: 信息安规,           outline_l1: 信息安规,     outline_l2: null,             source_file_pattern: 35-信息安规.xls,                        is_general: false, enabled: false, sort_order: 31}
+  - {code: yx_general,      name: 营销安规通用,       outline_l1: 营销安规,     outline_l2: 通用部分,         source_file_pattern: 36-1-营销安规-通用部分.xls,             is_general: true,  enabled: false, sort_order: 40}
+  - {code: yx_metering,     name: 电能计量,           outline_l1: 营销安规,     outline_l2: 电能计量,         source_file_pattern: 36-2-营销安规-电能计量专业.xls,         is_general: false, enabled: false, sort_order: 41}
+  - {code: yx_business,     name: 营业,               outline_l1: 营销安规,     outline_l2: 营业专业,         source_file_pattern: 36-3-营销安规-营业专业.xls,             is_general: false, enabled: false, sort_order: 42}
+  - {code: yx_market,       name: 市场,               outline_l1: 营销安规,     outline_l2: 市场专业,         source_file_pattern: 36-4-营销安规-市场专业.xls,             is_general: false, enabled: false, sort_order: 43}
+  - {code: dg_production,   name: 电工制造综合生产,   outline_l1: 电工制造安规, outline_l2: 综合生产专业,     source_file_pattern: 56-1-电工制造安规-综合生产专业.xls,     is_general: false, enabled: false, sort_order: 50}
+  - {code: dg_testing,      name: 电工制造检测与试验, outline_l1: 电工制造安规, outline_l2: 检测与试验专业,   source_file_pattern: 56-2-电工制造安规-检测与试验专业.xls,   is_general: false, enabled: false, sort_order: 51}

@@ -2,22 +2,33 @@ version: "3.9"
 
 services:
   practice-exam:
-    # 如果服务器已能拉到 Docker Hub 镜像，推荐使用 image 写法
-    # 并替换成你自己的 Docker Hub 用户名和仓库名
-    image: cxsz16888/practiceexam:latest
-    # 如果想在本机/服务器上从当前代码构建镜像，可以改用以下配置：
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    # 默认从当前代码本地构建（内网离线可用，不依赖任何第三方预构建镜像）。
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # 若内网已预置了自行分发/已审核的整包镜像，可注释掉上面的 build、改用：
+    # image: practice-exam:2026-11
+    # 不设置任何外部仓库的默认 image，避免离线机拉取失败或误用第三方镜像。
 
     container_name: practice-exam
     restart: unless-stopped
 
-    # 将容器 8000 端口映射到宿主机
+    # 宿主机 8888 → 容器 8000
     ports:
       - "8888:8000"
 
-    # 挂载题库数据库，方便后续更新 questions.db
+    # 挂载整个数据目录（exam.db / -wal / 导入报告 / 备份），不再挂单个 questions.db
     volumes:
-      - ./questions.db:/app/questions.db
+      - ./data:/app/data
 
+    environment:
+      EXAM_DB_PATH: /app/data/exam.db
+      PYTHONUNBUFFERED: "1"
+
+    # 根路径由 StaticFiles(html=True) 提供，返回 200 即表示应用已就绪
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
