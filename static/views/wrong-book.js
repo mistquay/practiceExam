@@ -1,5 +1,6 @@
 // 错题本（服务端 /api/records/wrong，仅本人）
 import { listWrong, removeWrong, clearWrong } from "../api/records.js";
+import { listBanks } from "../api/banks.js";
 import { listOf } from "../api/http.js";
 import { getSelection } from "../state/selection.js";
 import { h, mount, loading, errorBox, fmtDateTime } from "../components/dom.js";
@@ -12,21 +13,28 @@ export async function render(view, { navigate }) {
   const practiceBtn = h("button", { class: "btn btn-primary btn-sm" }, "练习错题");
   const clearBtn = h("button", { class: "btn btn-danger btn-sm" }, "清空错题本");
 
-  practiceBtn.addEventListener("click", () => {
-    if (!bankId || !specialtyCode) {
-      toast("请先在选题页选择题库与专业", "warning");
-      navigate("/");
+  function practiceWrong(bank) {
+    const q = new URLSearchParams({ bank, person: "", order: "random", source: "wrong", count: "50" });
+    if (specialtyCode) q.set("specialty", specialtyCode);
+    navigate(`/practice?${q.toString()}`);
+  }
+
+  // 练习已不要求专业；未在选题页选过题库时，默认用第一个已发布题库
+  practiceBtn.addEventListener("click", async () => {
+    if (bankId) {
+      practiceWrong(bankId);
       return;
     }
-    const q = new URLSearchParams({
-      bank: bankId,
-      person: "",
-      specialty: specialtyCode,
-      order: "random",
-      source: "wrong",
-      count: "50",
-    });
-    navigate(`/practice?${q.toString()}`);
+    practiceBtn.disabled = true;
+    try {
+      const banks = (await listBanks()).filter((b) => !b.status || b.status === "active");
+      if (banks.length) practiceWrong(String(banks[0].id));
+      else toast("当前没有已发布的题库版本", "warning");
+    } catch (err) {
+      toastError(err);
+    } finally {
+      practiceBtn.disabled = false;
+    }
   });
 
   clearBtn.addEventListener("click", async () => {

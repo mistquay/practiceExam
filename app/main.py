@@ -48,6 +48,11 @@ async def server_time_and_answer_guard(request: Request, call_next):
     response.headers["Server-Now"] = now_iso()
 
     path = request.url.path
+    if not path.startswith("/api/"):
+        # 前端是无构建链的原生 ESM，文件名不带版本哈希；强制按 ETag 重新验证（304 很便宜），
+        # 避免发版后浏览器按启发式缓存混用新旧模块。
+        response.headers.setdefault("Cache-Control", "no-cache")
+        return response
     if not (path == "/api/exams" or path.startswith("/api/exams/")):
         return response
 

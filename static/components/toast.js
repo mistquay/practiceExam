@@ -10,6 +10,9 @@ function region() {
   return el;
 }
 
+// 模块加载即创建：live region 须先于内容存在，读屏软件才会播报第一条提示
+region();
+
 export function toast(message, type = "info", ms = 3500) {
   const item = h("div", { class: `toast toast-${type}` }, message);
   region().appendChild(item);

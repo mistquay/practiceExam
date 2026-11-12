@@ -94,11 +94,10 @@ function renderChrome() {
   mount(
     navEl,
     links.filter(([href]) => canAccess(match(href)?.route, user)).map(([href, text]) =>
-      h(
-        "a",
-        { href: `#${href}`, class: (href === "/" ? path === "/" : path.startsWith(href)) ? "active" : null },
-        text
-      )
+      {
+        const active = href === "/" ? path === "/" : path.startsWith(href);
+        return h("a", { href: `#${href}`, class: active ? "active" : null, "aria-current": active ? "page" : null }, text);
+      }
     )
   );
   mount(
@@ -178,12 +177,39 @@ async function render() {
     if (revision !== renderRevision) return;
     view.replaceChildren();
     const dispose = await mod.render(view, { params, query, navigate, onLogin: handleLogin });
-    if (revision === renderRevision) cleanup = dispose;
-    else if (typeof dispose === "function") dispose();
+    if (revision === renderRevision) {
+      cleanup = dispose;
+      announceView(view);
+    } else if (typeof dispose === "function") dispose();
   } catch (err) {
     mount(view, errorBox(err));
   }
 }
+
+// 单页切换后同步标题；视图自身没有接管焦点时（焦点落在 body 或已被移除的旧节点上），
+// 把焦点移到主区域，读屏软件从新页面开头朗读，键盘用户不必再从顶栏 Tab 过来。
+const APP_TITLE = document.title;
+let firstRender = true;
+function announceView(view) {
+  const heading = view.querySelector("h1, h2");
+  document.title = heading ? `${heading.textContent} · ${APP_TITLE}` : APP_TITLE;
+  const active = document.activeElement;
+  if (!firstRender && (!active || active === document.body || !active.isConnected)) focusMain({ preventScroll: true });
+  firstRender = false;
+}
+
+// main 只在被程序聚焦时临时可聚焦：常驻 tabindex 会让点击空白处把焦点吸到 main，
+// 进而触发组件（如标签下拉）的 focusout 关闭逻辑。
+function focusMain(options) {
+  root.setAttribute("tabindex", "-1");
+  root.addEventListener("blur", () => root.removeAttribute("tabindex"), { once: true });
+  root.focus(options);
+}
+
+document.querySelector(".skip-link")?.addEventListener("click", (event) => {
+  event.preventDefault(); // href="#app" 只为语义，不能改动 hash 路由
+  focusMain();
+});
 
 async function handleLogin() {
   sessionReady = false;

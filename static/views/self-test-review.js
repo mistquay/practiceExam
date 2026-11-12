@@ -12,7 +12,7 @@ export async function renderSelfReview(box, attemptId, onRated) {
       data.items.map(q => {
         const score = h("input", { type: "number", class: "input", min: 0, max: q.max_score, step: "0.01", required: true, placeholder: `0~${q.max_score}` });
         const confirm = h("button", { type: "submit", class: "btn btn-primary" }, "确认本题自评分");
-        const form = h("form", { class: "form", onsubmit: async event => {
+        const form = h("form", { class: "form self-review-form", onsubmit: async event => {
           event.preventDefault();
           if (!form.reportValidity() || confirm.disabled) return;
           confirm.disabled = true;

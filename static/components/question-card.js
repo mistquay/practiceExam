@@ -45,6 +45,9 @@ function optionsOf(question, kind) {
 export function renderQuestionCard(question, index, { choice = "", disabled = false, onChange, meta } = {}) {
   const kind = kindOf(question);
   const name = `q-${index}`;
+  const titleId = `question-${index}-title`;
+  const stemId = `question-${index}-stem`;
+  const labelledBy = `${titleId} ${stemId}`;
   const metaParts = [question.qtype || question.type, meta, question.score != null ? `${question.score} 分` : null]
     .filter(Boolean)
     .join(" · ");
@@ -56,6 +59,7 @@ export function renderQuestionCard(question, index, { choice = "", disabled = fa
       name,
       rows: 4,
       placeholder: "请输入作答内容",
+      "aria-labelledby": labelledBy,
       disabled,
       oninput: onChange,
     });
@@ -64,7 +68,7 @@ export function renderQuestionCard(question, index, { choice = "", disabled = fa
     const inputType = kind === "multiple" ? "checkbox" : "radio";
     body = h(
       "div",
-      { class: "q-options" },
+      { class: "q-options", role: kind === "multiple" ? "group" : "radiogroup", "aria-labelledby": labelledBy },
       optionsOf(question, kind).map((o) =>
         h(
           "label",
@@ -90,10 +94,10 @@ export function renderQuestionCard(question, index, { choice = "", disabled = fa
     h(
       "header",
       { class: "q-header" },
-      h("span", { class: "q-no" }, `第 ${index + 1} 题`),
+      h("span", { class: "q-no", id: titleId }, `第 ${index + 1} 题`),
       h("span", { class: "q-meta" }, metaParts)
     ),
-    h("div", { class: "q-stem" }, question.stem || question.question || ""),
+    h("div", { class: "q-stem", id: stemId }, question.stem || question.question || ""),
     body,
     h("div", { class: "question-feedback" })
   );

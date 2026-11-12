@@ -4,7 +4,7 @@
 import { renderSelfReview } from "./self-test-review.js";
 import { getAttempt, submitExam } from "../api/exam.js";
 import { loadDraft, saveDraft, clearDraft } from "../state/exam-draft.js";
-import { h, mount, loading, errorBox, empty } from "../components/dom.js";
+import { h, mount, loading, errorBox, empty, scrollToEl } from "../components/dom.js";
 import { renderQuestionCard, readChoice, lockCard, markCard } from "../components/question-card.js";
 import { renderNav } from "../components/question-nav.js";
 import { createCountdown, fmtRemaining } from "../components/countdown.js";
@@ -59,7 +59,7 @@ function runPaper(view, attemptId, attempt) {
       "div",
       { class: "exam-bar" },
       h("strong", null, title),
-      h("span", null, "剩余 ", timerEl),
+      h("span", { role: "timer" }, "剩余 ", timerEl),
       countEl,
       submitBtn
     ),
@@ -83,7 +83,10 @@ function runPaper(view, attemptId, attempt) {
     countEl.textContent = `已作答 ${filledCount()} / ${questions.length}`;
     renderNav(navEl, questions.length, {
       statusOf: (i) => (choices[questions[i].stable_id] ? "done" : ""),
-      onPick: (i) => cards[i].scrollIntoView({ behavior: "smooth", block: "start" }),
+      onPick: (i) => {
+        scrollToEl(cards[i]);
+        cards[i].querySelector("input, textarea")?.focus({ preventScroll: true });
+      },
     });
   }
 
@@ -216,8 +219,9 @@ function renderResult(view, data, questionsIn, localChoices) {
     h(
       "div",
       { class: "score-line" },
-      h("span", { class: "score" }, res.score ?? "—"),
-      h("span", { class: "hint" }, ` / ${res.total_score ?? "—"} 分`),
+      res.score != null
+        ? [h("span", { class: "score" }, res.score), h("span", { class: "hint" }, ` / ${res.total_score ?? "—"} 分`)]
+        : h("span", { class: "score score-pending" }, "未出总分"),
       h("span", { class: `badge ${res.passed === true ? "badge-ok" : res.passed === false ? "badge-bad" : ""}` }, passedText)
     ),
     h(
@@ -285,7 +289,7 @@ function renderResult(view, data, questionsIn, localChoices) {
       },
       onPick: (i) => {
         const el = cards[i];
-        if (el.isConnected) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (el.isConnected) scrollToEl(el);
       },
     });
   }

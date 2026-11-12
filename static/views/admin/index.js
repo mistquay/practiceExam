@@ -17,10 +17,14 @@ export async function render(view, ctx) {
     h(
       "nav",
       { class: "tabs", "aria-label": "管理功能" },
-      TABS.map((t) => h("a", { href: `#/admin/${t.key}`, class: t === active ? "active" : null }, t.title))
+      TABS.map((t) =>
+        h("a", { href: `#/admin/${t.key}`, class: t === active ? "active" : null, "aria-current": t === active ? "page" : null }, t.title)
+      )
     ),
     body
   );
+  // 窄屏下标签横向滚动，确保当前标签可见
+  view.querySelector(".tabs a.active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
   const mod = await active.load();
   return mod.render(body, ctx);
 }

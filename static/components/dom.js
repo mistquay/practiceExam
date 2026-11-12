@@ -43,6 +43,12 @@ export function fmtDate(value) {
   return value ? String(value).slice(0, 10) : "—";
 }
 
+/** 滚动到元素：尊重系统「减少动态效果」设置（CSS 的 scroll-behavior 管不到 JS 指定的 smooth） */
+export function scrollToEl(el) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+}
+
 /** 加载中 / 空状态 / 错误占位 */
 export const loading = (text = "加载中…") => h("div", { class: "placeholder" }, text);
 export const empty = (text = "暂无数据") => h("div", { class: "placeholder" }, text);

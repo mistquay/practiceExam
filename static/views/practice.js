@@ -48,6 +48,9 @@ function createSession(view, { bankId, questions, navigate }) {
   let index = 0;
   let busy = false;
   let autoNextTimer = null;
+  // 单选 / 判断「点选即提交」只对指针（鼠标、触屏）生效：键盘方向键在单选组内移动时
+  // 同样会触发 change，若也自动提交，键盘用户无法越过中间选项。键盘作答改用「提交本题」。
+  let pointerAt = -Infinity;
 
   const progressEl = h("div", { class: "progress-text" });
   const navEl = h("div", { class: "question-nav" });
@@ -69,6 +72,7 @@ function createSession(view, { bankId, questions, navigate }) {
         h("a", { href: "#/", class: "btn btn-ghost btn-sm" }, "结束练习")
       ),
       progressEl,
+      h("p", { class: "hint practice-tip" }, "单选、判断题点选即提交；用键盘方向键选择后，按「提交本题」确认。"),
       navEl,
       cardBox,
       h("div", { class: "actions" }, prevBtn, submitBtn, revealBtn, nextBtn)
@@ -109,18 +113,31 @@ function createSession(view, { bankId, questions, navigate }) {
     const question = questions[index];
     const r = results[index];
     const kind = kindOf(question);
+    const instant = kind === "single" || kind === "judge";
     const card = renderQuestionCard(question, index, {
       choice: r ? r.choice : "",
       disabled: !!r,
       meta: question.specialty_name || question.outline_l2,
-      // 单选 / 判断：选中即提交
-      onChange: kind === "single" || kind === "judge" ? () => submit() : undefined,
+      onChange: () => {
+        submitBtn.disabled = busy || !readChoice(card);
+        if (instant && performance.now() - pointerAt < 1000) submit();
+      },
+    });
+    card.addEventListener("pointerdown", () => {
+      pointerAt = performance.now();
     });
     if (r) {
       markCard(card, r.outcome.is_correct === true ? "right" : r.outcome.is_correct === false ? "wrong" : null);
     }
-    if (r || revealed[index]) mount(card.querySelector(".question-feedback"), feedbackNodes(question, r && r.outcome, r && r.choice));
+    const feedback = card.querySelector(".question-feedback");
+    feedback.tabIndex = -1;
+    if (r || revealed[index]) mount(feedback, feedbackNodes(question, r && r.outcome, r && r.choice));
+    // 作答区被整体重绘时保住焦点：已判分则聚焦反馈（读屏立即朗读对错），否则聚焦新题首个控件
+    const shown = !!(r || revealed[index]);
+    const active = document.activeElement;
+    const focusWasInCard = cardBox.contains(active) || (shown && (active === submitBtn || active === revealBtn));
     mount(cardBox, card);
+    if (focusWasInCard) (shown ? feedback : card.querySelector("input, textarea"))?.focus({ preventScroll: true });
 
     const s = stats();
     progressEl.textContent = `第 ${index + 1} / ${questions.length} 题 · 已答 ${s.done} · 答对 ${s.right} / ${s.graded}`;
@@ -128,8 +145,7 @@ function createSession(view, { bankId, questions, navigate }) {
 
     prevBtn.disabled = index === 0;
     nextBtn.textContent = index === questions.length - 1 ? "完成" : "下一题";
-    submitBtn.hidden = kind === "single" || kind === "judge";
-    submitBtn.disabled = !!r || busy;
+    submitBtn.disabled = !!r || busy || (kind !== "text" && !readChoice(card));
     revealBtn.disabled = !!r || revealed[index];
   }
 
