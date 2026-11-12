@@ -222,8 +222,9 @@ def test_new_bank_version_does_not_change_historical_scores(scenario):
     assert snapshot_rows(scenario["db"], paper_id) == before
     conn = T.connect(scenario["db"])
     assert conn.execute("SELECT score FROM attempts WHERE id = ?", (a["attempt_id"],)).fetchone()[0] == 100
-    assert conn.execute("SELECT COUNT(*) FROM bank_versions WHERE code IN ('legacy','2026-11','2027-01')").fetchone()[0] == 3
-    assert conn.execute("SELECT status FROM bank_versions WHERE code='legacy'").fetchone()[0] == "archived"
+    # 运行库只保留当日 2026-11 版；legacy 已移到 archive/，不再出现在运行库
+    assert conn.execute("SELECT COUNT(*) FROM bank_versions WHERE code IN ('2026-11','2027-01')").fetchone()[0] == 2
+    assert conn.execute("SELECT COUNT(*) FROM bank_versions WHERE code='legacy'").fetchone()[0] == 0
     conn.close()
 
 
@@ -393,8 +394,8 @@ def test_migration_up_down_up_on_db_copy(tmp_path):
     assert migration_status(db)[0]["applied"] is True
 
 
-def test_upgrade_idempotent_on_real_db_and_legacy_still_queryable(scenario):
-    """升级（重复 upgrade / 发布新版本）后 legacy 版本与历史成绩仍可查。"""
+def test_upgrade_idempotent_on_real_db_and_bank_still_queryable(scenario):
+    """升级（重复 upgrade / 发布新版本）后当日题库版本与历史成绩仍可查。"""
     db = scenario["db"]
     assert upgrade(db) == []                     # 幂等，不重复执行迁移
     batch = open_batch(scenario, "MIG-1")
@@ -405,12 +406,12 @@ def test_upgrade_idempotent_on_real_db_and_legacy_still_queryable(scenario):
     scenario["u1"].post(f"/api/exams/{a['attempt_id']}/submit",
                         json={"responses": correct_responses_from(db, paper_id)})
     conn = T.connect(db)
-    legacy = conn.execute("SELECT status FROM bank_versions WHERE code='legacy'").fetchone()[0]
-    legacy_questions = conn.execute(
+    bank = conn.execute("SELECT status FROM bank_versions WHERE code='2026-11'").fetchone()
+    active_questions = conn.execute(
         "SELECT COUNT(*) FROM question_versions qv JOIN bank_versions b ON b.id=qv.bank_version_id "
-        "WHERE b.code='legacy' AND qv.retired=0").fetchone()[0]
+        "WHERE b.code='2026-11' AND qv.retired=0").fetchone()[0]
     conn.close()
-    assert legacy == "archived" and legacy_questions == 1295
+    assert bank is not None and bank[0] == "active" and active_questions == 11450
     conn = T.connect(db)
     conn.execute("INSERT INTO bank_versions (code, name, status) VALUES ('2027-06', '新版', 'draft')")
     conn.commit()

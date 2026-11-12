@@ -1,4 +1,4 @@
-"""旧库导入：根目录 questions.db（单表 questions，1325 行）→ bank_version=legacy（archived，默认不激活）。
+"""旧库导入：archive/questions.db（单表 questions，1325 行）→ bank_version=legacy（archived，默认不激活）。
 
 旧表字段 → 新字段：category→basis，explanation/analysis→analysis，codeId→code_id，remarks→remark，
 Description→note；options 为 JSON 对象，复用同一套规范化与 stable_id 规则（可与新库按 stable_id 对账）。

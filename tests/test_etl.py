@@ -35,7 +35,7 @@ from etl.cli import load_prepared, prepare, run_import  # noqa: E402
 from etl.loader import load  # noqa: E402
 
 SOURCE = REPO_ROOT / "2026-11-12"
-LEGACY_DB = REPO_ROOT / "questions.db"
+LEGACY_DB = REPO_ROOT / "archive" / "questions.db"
 VERSION = "2026-11"
 
 pytestmark = pytest.mark.skipif(not SOURCE.is_dir(), reason="缺少资料目录 2026-11-12/")

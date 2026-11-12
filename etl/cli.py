@@ -1,7 +1,7 @@
 """命令行入口。
 
   python -m etl import --source 2026-11-12 --version 2026-11 [--dry-run] [--load] [--verify-rar]
-  python -m etl import --version legacy [--source questions.db] [--load]
+  python -m etl import --version legacy [--source archive/questions.db] [--load]
   python -m etl gen-fixtures --source 2026-11-12 --version 2026-11
 """
 from __future__ import annotations
@@ -145,7 +145,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     imp = sub.add_parser("import", help="解析题库并生成报告，可选入库")
-    imp.add_argument("--source", help="资料目录；--version legacy 时为旧 questions.db（默认根目录 questions.db）")
+    imp.add_argument("--source", help="资料目录；--version legacy 时为旧 questions.db（默认 archive/questions.db）")
     imp.add_argument("--version", required=True, help="题库版本代码，如 2026-11；legacy 表示旧库")
     imp.add_argument("--dry-run", action="store_true", help="只解析与出报告（默认行为）")
     imp.add_argument("--load", action="store_true", help="解析后写入数据库")
@@ -166,7 +166,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.source:
         source = _resolve(args.source)
     elif args.version == LEGACY_BANK_CODE:
-        source = REPO_ROOT / "questions.db"
+        source = REPO_ROOT / "archive" / "questions.db"
     else:
         parser.error("--source 必填")
     report = run_import(source, args.version, report_dir=_resolve(args.report_dir),

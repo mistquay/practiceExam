@@ -1,0 +1,42 @@
+# 线上部署：直接拉 Docker Hub 镜像启动，不需要本地构建，也不需要跑 ETL。
+#
+#   把整个 deploy/ 目录拷到服务器（务必带上 data/exam.db，镜像里没有题目）
+#   cd deploy && cp .env.example .env && 改掉 EXAM_ADMIN_PASSWORD
+#   docker compose up -d
+#   浏览器打开 http://服务器IP:8888/
+#
+# 需要固定版本时把 image 的 tag 换成已发布的 commit sha：
+#   image: cxsz16888/practiceexam:4410828f128d93fc14976247ae0f20fedbea3130
+
+services:
+  practice-exam:
+    image: cxsz16888/practiceexam:latest
+    container_name: practice-exam
+    restart: unless-stopped
+
+    # 宿主机 8888 → 容器 8000；要挂到 80 端口改成 "80:8000"
+    ports:
+      - "8888:8000"
+
+    # 题库、成绩、作答草稿、备份全在这个目录。镜像只带程序，不带任何题目。
+    # 部署时必须把 deploy/data/ 整个目录带过去，空目录启动 = 0 道题。
+    volumes:
+      - ./data:/app/data
+
+    environment:
+      EXAM_DB_PATH: /app/data/exam.db
+      PYTHONUNBUFFERED: "1"
+      EXAM_ADMIN_NO: ${EXAM_ADMIN_NO:-admin}
+      # 不设就起不来：公开镜像不能沿用默认管理员密码
+      EXAM_ADMIN_PASSWORD: ${EXAM_ADMIN_PASSWORD:?请在 .env 中设置 EXAM_ADMIN_PASSWORD}
+      EXAM_ADMIN_NAME: ${EXAM_ADMIN_NAME:-系统管理员}
+      # 走 HTTPS 反向代理时设为 1，Cookie 才会带 Secure 标记
+      EXAM_COOKIE_SECURE: ${EXAM_COOKIE_SECURE:-0}
+      EXAM_SESSION_TTL: ${EXAM_SESSION_TTL:-43200}
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

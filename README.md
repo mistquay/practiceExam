@@ -2,7 +2,7 @@
 
 一句话：面向**内网离线环境**的安规题库练习与考试系统——题库一次导入成带版本的库，按「人员类别 × 专业」模板组卷，答案不下发、服务端判分、锁卷留痕，成绩与错题按用户持久化。
 
-> 本文给 dong 看：只讲**启动 / 导入 / 发版迁移 / 备份**四件事、数据事实、待拍板事项与验收状态。本次收尾只补部署配置与文档，**没有执行任何写库命令**。
+> 本文给 dong 看：只讲**启动 / 导入 / 发版迁移 / 备份 / 线上部署**五件事、数据事实、待拍板事项与验收状态。运行库 `data/exam.db` 现只保留 `2026-11` 版题库；历史资料与含 legacy 的原库快照已移至 `archive/`，不进公开仓库。
 
 ---
 
@@ -66,11 +66,11 @@ D:\services\mamba_envs\ame\python.exe -m pip install --only-binary=:all: -r requ
 /d/services/mamba_envs/ame/python.exe -m etl import --source 2026-11-12 --version 2026-11 --load
 ```
 
-旧库 `questions.db` 作为 `bank_version=legacy` 归档导入（默认不激活，不删除旧 `.db`）：
+历史旧库已归档到 `archive/questions.db`，运行库 `data/exam.db` 中**已移除 `legacy` 版本**，现在只有 `2026-11` 一个题库版本。若需重新导入旧库做对账（一般不需要，会重新写入 legacy）：
 
 ```bash
-/d/services/mamba_envs/ame/python.exe -m etl import --version legacy --source questions.db --dry-run
-/d/services/mamba_envs/ame/python.exe -m etl import --version legacy --source questions.db --load
+/d/services/mamba_envs/ame/python.exe -m etl import --version legacy --source archive/questions.db --dry-run
+/d/services/mamba_envs/ame/python.exe -m etl import --version legacy --source archive/questions.db --load
 ```
 
 可选参数：`--verify-rar`（解压 RAR 到临时目录比对 MD5，仅校验、不作数据源）、`--db <路径>`、`--report-dir <目录>`。ETL 需要 `requirements-etl.txt` 里的 openpyxl / xlrd，生产镜像不带。
@@ -107,6 +107,18 @@ D:\services\mamba_envs\ame\python.exe -m pip install --only-binary=:all: -r requ
 
 `VACUUM INTO` 的目标文件必须事先不存在；`backup()` 会覆写目标。备份须含 `audit_logs` 与卷面快照，建议每日备份 + 每月恢复演练，升级/回滚前先备份。
 
+### 3.5 线上部署（直接拉镜像）
+
+`deploy/` 是自包含部署包：`docker-compose.yml` 直接拉 Docker Hub 的 `cxsz16888/practiceexam:latest`，不本地构建、不跑 ETL；`deploy/data/exam.db` 是题库本体（镜像里不含任何题目）。
+
+```bash
+cd deploy
+cp .env.example .env      # 改掉 EXAM_ADMIN_PASSWORD
+docker compose up -d      # 宿主机 8888 → 容器 8000
+```
+
+把整个 `deploy/` 目录拷到服务器即可，别漏 `data/`。详见 [deploy/README.md](deploy/README.md)。归档目录 `archive/` 与资料目录 `2026-11-12/` 均不进公开仓库。
+
 ---
 
 ## 4. 数据事实（`bank_version=2026-11`，来源 `2026-11-12/`）
@@ -121,7 +133,7 @@ D:\services\mamba_envs\ame\python.exe -m pip install --only-binary=:all: -r requ
 | 保命题 | **1,578** 行（130 文件，去重 596 题），是标签而非试卷类型；另 11 道备注为空的编辑遗留黄题不进必答 |
 | 简答题 | 原始 **652** 行 → 去重 **191** 题，**不入自动判分卷**（`auto_gradable=0`；答案长文本、多为 `\` 占位分值） |
 | 网络信息安全 | 口径 B 的排除集合为 **566** 题（一级纲要 ∈ 通信安规 / 信息安规，及标黄必汇总末尾 29 行不着色保命题） |
-| legacy | 旧 `questions.db` 1,325 行 → **1,295** 题，**archived**（`bank_version=legacy`，默认不激活，旧文件保留） |
+| legacy（已移除） | 旧 `questions.db` 1,325 行 → 1,295 题，原为 `archived`；现已从运行库清除，原库快照 `archive/exam-full-2026-11-12.db`，源文件 `archive/questions.db` |
 
 去重后按题型：单选 4,591 / 多选 2,856 / 判断 3,812 / 简答 191；可自动判分 11,259 题。以上去重分项**不是**原始行数（12,331 / 10,112 / 7,894 / 652）。
 
