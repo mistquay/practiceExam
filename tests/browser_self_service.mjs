@@ -80,9 +80,22 @@ try {
   for (const width of [320, 390]) {
     await command('viewport', String(width), '844', '--mobile');
     await button('清空筛选');
+    for (const title of ['专业', '题目来源', '题目标签']) {
+      const before = await evaluate(`document.querySelector('form').getBoundingClientRect().height`);
+      await act(`form:not(.self-test-form) .tag-picker-trigger[aria-label="${title}"]`, 'click');
+      const overlay = await evaluate(`(()=>{const p=document.querySelector('form:not(.self-test-form) .tag-picker-trigger[aria-label="${title}"]').parentElement;
+        const r=p.panel.getBoundingClientRect(),v=visualViewport;return {position:getComputedStyle(p.panel).position,
+          height:document.querySelector('form').getBoundingClientRect().height,left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+          viewportLeft:v?.offsetLeft||0,viewportTop:v?.offsetTop||0,viewportWidth:v?.width||innerWidth,viewportHeight:v?.height||innerHeight};})()`);
+      assert.equal(overlay.position, 'fixed', `${title}必须悬浮`);
+      assert.equal(overlay.height, before, `${title}展开不能撑高表单`);
+      assert(overlay.left >= overlay.viewportLeft && overlay.right <= overlay.viewportLeft + overlay.viewportWidth, JSON.stringify(overlay));
+      assert(overlay.top >= overlay.viewportTop && overlay.bottom <= overlay.viewportTop + overlay.viewportHeight, JSON.stringify(overlay));
+      await button('完成');
+    }
     await act('.tag-picker-trigger', 'click');
     measurements.push(await layout(width));
-    // 全部真实颜色/数据标签选中时摘要很长，也必须在窄屏换行且不溢出。
+    // 全部标签选中时摘要很长，触发按钮仍需保持单行且不溢出。
     const codes = await evaluate(`document.querySelector('.tag-picker-trigger[aria-label="题目标签"]').parentElement.inputs.map(e=>e.code)`);
     for (const code of codes) await act(`.tag-picker input[value="${code}"]`, 'check');
     assert.equal((await state()).value.length, codes.length);
@@ -118,7 +131,7 @@ try {
     await button('完成');
     assert.deepEqual((await state()).value, []);
     await act('.tag-picker-trigger', 'click');
-    await act('h1', 'click');
+    await command('cua', 'click', '1', '1');
     assert.equal((await state()).open, false, '外部点击必须关闭');
     await act('.tag-picker-trigger', 'press', 'ArrowDown');
     for (let n=0; n<13; n++) await command('cua', 'keypress', 'Tab');

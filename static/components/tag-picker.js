@@ -7,9 +7,14 @@ class TagPicker extends HTMLElement {
     this.outside = (event) => {
       if (!this.contains(event.target)) this.close(false);
     };
+    this.reposition = () => this.positionPanel();
+    this.onScroll = (event) => {
+      if (!this.panel.contains(event.target)) this.positionPanel();
+    };
     document.addEventListener("pointerdown", this.outside);
   }
   disconnectedCallback() {
+    this.close(false);
     document.removeEventListener("pointerdown", this.outside);
   }
   setup(items, onChange, { title = "题目标签", empty = "全部标签（点击多选）", search = false, summaryLimit = Infinity } = {}) {
@@ -30,6 +35,7 @@ class TagPicker extends HTMLElement {
       oninput: (event) => {
         const term = event.target.value.trim().toLowerCase();
         rows.forEach((row, i) => { row.hidden = !this.inputs[i].name.toLowerCase().includes(term); });
+        this.positionPanel();
       } }) : null;
     this.panel = h("div", { id, class: "tag-picker-panel", hidden: true }, searchBox,
       h("div", { class: "tag-picker-options", role: "group", "aria-label": title }, rows),
@@ -37,6 +43,9 @@ class TagPicker extends HTMLElement {
         h("button", { type: "button", class: "btn btn-outline", onclick: () => { this.value = []; this.changed(); } }, "清空"),
         h("button", { type: "button", class: "btn btn-outline", onclick: () => { this.value = this.before; this.changed(); this.close(true); } }, "取消"),
         h("button", { type: "button", class: "btn btn-primary", onclick: () => this.close(true) }, "完成")));
+    // 原生 Popover 进入顶层，避免被卡片、动画或折叠容器裁切；旧浏览器保留固定定位。
+    this.usePopover = typeof this.panel.showPopover === "function";
+    if (this.usePopover) this.panel.setAttribute("popover", "manual");
     this.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && !this.panel.hidden) {
         event.preventDefault(); event.stopPropagation(); this.close(true);
@@ -65,18 +74,61 @@ class TagPicker extends HTMLElement {
     this.trigger.textContent = selected.length
       ? `已选 ${selected.length} 项：${selected.slice(0, this.summaryLimit).map((item) => item.name).join("、")}${selected.length > this.summaryLimit ? "…" : ""}`
       : this.empty;
+    this.trigger.title = this.trigger.textContent;
+    this.positionPanel();
   }
   changed() { this.updateSummary(); this.onChange(); }
   open() {
     if (!this.panel.hidden) return;
     this.before = this.value;
     this.panel.hidden = false;
+    if (this.usePopover) this.panel.showPopover();
     this.trigger.setAttribute("aria-expanded", "true");
+    this.positionPanel();
+    if (this.panel.hidden) return;
+    document.addEventListener("scroll", this.onScroll, true);
+    window.addEventListener("resize", this.reposition);
+    window.visualViewport?.addEventListener("resize", this.reposition);
+    window.visualViewport?.addEventListener("scroll", this.reposition);
+    this.sizeObserver = new ResizeObserver(this.reposition);
+    this.sizeObserver.observe(this.trigger);
+  }
+  positionPanel() {
+    if (!this.panel || this.panel.hidden) return;
+    const rect = this.trigger.getBoundingClientRect();
+    const viewport = window.visualViewport;
+    const margin = 8, gap = 6;
+    const leftEdge = (viewport?.offsetLeft || 0) + margin;
+    const topEdge = (viewport?.offsetTop || 0) + margin;
+    const rightEdge = leftEdge + (viewport?.width || document.documentElement.clientWidth) - 2 * margin;
+    const bottomEdge = topEdge + (viewport?.height || window.innerHeight) - 2 * margin;
+    if (!rect.width || rect.bottom <= topEdge || rect.top >= bottomEdge) {
+      this.close(false);
+      return;
+    }
+    const width = Math.min(rect.width, Math.max(0, rightEdge - leftEdge));
+    this.panel.style.width = `${width}px`;
+    this.panel.style.left = `${Math.max(leftEdge, Math.min(rect.left, rightEdge - width))}px`;
+    this.panel.style.maxHeight = `${Math.max(0, Math.min(420, bottomEdge - topEdge))}px`;
+    const desired = this.panel.getBoundingClientRect().height;
+    const below = Math.max(0, bottomEdge - rect.bottom - gap);
+    const above = Math.max(0, rect.top - topEdge - gap);
+    const upwards = below < desired && above > below;
+    this.panel.style.maxHeight = `${Math.min(420, upwards ? above : below)}px`;
+    const height = this.panel.getBoundingClientRect().height;
+    const top = upwards ? rect.top - gap - height : rect.bottom + gap;
+    this.panel.style.top = `${Math.max(topEdge, Math.min(top, bottomEdge - height))}px`;
   }
   close(focus) {
     if (!this.panel || this.panel.hidden) return;
+    if (this.usePopover && this.panel.matches(":popover-open")) this.panel.hidePopover();
     this.panel.hidden = true;
     this.trigger.setAttribute("aria-expanded", "false");
+    document.removeEventListener("scroll", this.onScroll, true);
+    window.removeEventListener("resize", this.reposition);
+    window.visualViewport?.removeEventListener("resize", this.reposition);
+    window.visualViewport?.removeEventListener("scroll", this.reposition);
+    this.sizeObserver?.disconnect();
     if (focus) this.trigger.focus();
   }
 }

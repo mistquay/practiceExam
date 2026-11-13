@@ -2,20 +2,20 @@
    结构：设计 token → 基础 → 布局 → 组件 → 题目/考试 → 响应式 → 暗色/动效偏好。
    所有颜色走 CSS 变量，@media (prefers-color-scheme: dark) 只需覆盖 token。 */
 
-/* 下拉标签多选：移动端在文档流内展开，避免浮层超出窄屏。 */
+/* 多选面板悬浮展示，坐标与可用高度由组件按视口计算。 */
 .tag-picker { display: block; min-width: 0; width: 100%; }
-.tag-picker .tag-picker-trigger { min-height: 44px; height: auto; text-align: left; white-space: normal; overflow-wrap: anywhere; }
-.tag-picker-panel { margin-top: 8px; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+.tag-picker .tag-picker-trigger { min-height: 44px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag-picker-panel { position: fixed; inset: auto; z-index: 80; display: flex; flex-direction: column; max-width: none; max-height: 420px; margin: 0; padding: 8px; overflow: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg); }
 .tag-picker-panel[hidden] { display: none; }
-.tag-picker-options { max-height: min(45vh, 320px); overflow-y: auto; overscroll-behavior: contain; }
+.tag-picker-options { min-height: 0; flex: 0 1 auto; overflow-y: auto; overscroll-behavior: contain; }
 .tag-picker-option { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px; cursor: pointer; overflow-wrap: anywhere; }
 .tag-picker-option span { min-width: 0; }
 .tag-picker-option input { width: 20px; height: 20px; flex: 0 0 20px; accent-color: var(--primary); }
-.tag-picker-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.tag-picker-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
 .tag-picker-actions .btn { min-height: 44px; flex: 1; }
 .tag-picker-option:focus-within { outline: 2px solid var(--primary); outline-offset: -2px; }
 .tag-picker-option[hidden] { display: none; }
-.tag-picker-panel > input[type="search"] { margin-bottom: 0.65rem; }
+.tag-picker-panel > input[type="search"] { flex: 0 0 auto; margin-bottom: 0.65rem; }
 .import-fields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 1rem; }
 
 :root {
