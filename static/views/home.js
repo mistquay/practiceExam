@@ -1,15 +1,11 @@
-// 登录即可练习与自主模拟；管理场次保留兼容。
+// 首页：题库练习、模拟考试与继续作答。
 import { renderSelfTestPicker } from "./self-test-picker.js";
 import { renderPracticePicker } from "./practice-picker.js";
 import { listBanks, getDimension } from "../api/banks.js";
-import { listAvailable, startExam, listMyExams } from "../api/exam.js";
+import { listMyExams } from "../api/exam.js";
 import { getSelection, saveSelection } from "../state/selection.js";
-import { h, mount, loading, errorBox, empty, fmtDateTime } from "../components/dom.js";
-import { toastError } from "../components/toast.js";
+import { h, mount, loading, errorBox, fmtDateTime } from "../components/dom.js";
 import { loadPracticeDraft, clearPracticeDraft } from "../state/practice-draft.js";
-
-// 暂不挂载公司考试板块；后续启用时改为 true，相关界面与接口继续保留。
-const SHOW_COMPANY_EXAMS = false;
 
 export async function render(view, { navigate }) {
   const sel = getSelection();
@@ -58,10 +54,9 @@ export async function render(view, { navigate }) {
       const dim = await getDimension(id);
       const practiceBox = h("div");
       const examBox = h("div");
-      const company = SHOW_COMPANY_EXAMS ? createCompanyExams({ bankId: id, navigate }) : null;
       mount(stepsBox,
         h("section", { class: "card" }, h("h1", { class: "card-title" }, "题库练习"), practiceBox),
-        h("details", { class: "card disclosure" }, h("summary", null, "模拟考试"), examBox), company);
+        h("details", { class: "card disclosure" }, h("summary", null, "模拟考试"), examBox));
       renderPracticePicker(practiceBox, { bankId: id, dim, navigate });
       renderSelfTestPicker(examBox, { bankId: id, dim, navigate });
     } catch (err) {
@@ -69,15 +64,6 @@ export async function render(view, { navigate }) {
     }
   }
   loadBank(bankId);
-}
-
-function createCompanyExams(options) {
-  const batches = h("div");
-  const company = h("details", { id: "company-exams", class: "card disclosure" }, h("summary", null, "公司考试"), batches);
-  company.addEventListener("toggle", () => {
-    if (company.open) renderExamOptions(batches, options);
-  });
-  return company;
 }
 
 async function showResumeBanner(box, navigate) {
@@ -98,68 +84,4 @@ async function showResumeBanner(box, navigate) {
   } catch {
     // 横幅是辅助信息，失败不打扰主流程
   }
-}
-
-async function renderExamOptions(box, { bankId, specialty, paperType, personCategory, navigate }) {
-  mount(box, loading("正在查询可参加的考试…"));
-  let items;
-  try {
-    items = await listAvailable({ bankId, specialtyCode: specialty, paperType, personCategory });
-  } catch (err) {
-    mount(box, errorBox(err));
-    return;
-  }
-  if (!items.length) {
-    mount(box, empty("当前没有可参加的考试"));
-    return;
-  }
-
-  async function begin(item, btn) {
-    const minutes = item.duration_min ? `限时 ${item.duration_min} 分钟，` : "";
-    if (!window.confirm(`确定开始「${item.name}」？${minutes}开始后计时不可暂停。`)) return;
-    btn.disabled = true;
-    try {
-      const attempt = await startExam({ batchId: item.batch_id, templateId: item.template_id, specialtyCode: specialty || "pd_live", personCategory });
-      navigate(`/exam/${attempt.attempt_id ?? attempt.id}`);
-    } catch (err) {
-      toastError(err);
-      btn.disabled = false;
-    }
-  }
-
-  mount(
-    box,
-    h(
-      "div",
-      { class: "list" },
-      items.map((item) => {
-        const btn = h("button", { class: "btn btn-primary btn-sm" }, "开始考试");
-        btn.disabled = item.attempts_left === 0;
-        btn.addEventListener("click", () => begin(item, btn));
-        return h(
-          "div",
-          { class: "list-item" },
-          h(
-            "div",
-            null,
-            h("strong", null, item.name || item.code || `场次 ${item.batch_id}`),
-            h(
-              "div",
-              { class: "hint" },
-              [
-                item.duration_min ? `时长 ${item.duration_min} 分钟` : null,
-                item.total_score != null ? `总分 ${item.total_score}` : null,
-                item.pass_score != null ? `及格 ${item.pass_score}` : null,
-                item.start_at || item.end_at ? `开放 ${fmtDateTime(item.start_at)} ~ ${fmtDateTime(item.end_at)}` : null,
-                item.attempts_left != null ? `剩余次数 ${item.attempts_left}` : null,
-              ]
-                .filter(Boolean)
-                .join(" · ")
-            )
-          ),
-          btn
-        );
-      })
-    )
-  );
 }

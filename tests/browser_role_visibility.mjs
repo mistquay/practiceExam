@@ -81,7 +81,7 @@ try {
   await evaluate(`(()=>{document.querySelector('input[step="0.01"]').value='0';document.querySelector('form').requestSubmit();return true})()`);
   await wait(`document.body.innerText.includes('得分 0')`);
   assert.deepEqual((await snapshot()).adminLinks, []);
-  // 场次入口暂时隐藏，相关代码和 API 继续保留。
+  // 公司考试板块已移除，后台接口继续保留。
   await route('/', `!!document.querySelector('.self-test-form')`);
   assert.equal(await evaluate(`document.querySelector('#company-exams')`), null);
   assert.equal(await evaluate(`document.body.innerText.includes('公司考试')`), false);
