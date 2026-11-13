@@ -15,7 +15,7 @@ from app.services.util import now_iso
 
 PRACTICE_DTO_KEYS = (
     "stable_id", "bank_id", "qtype", "stem", "options", "score", "answer",
-    "analysis", "basis", "outline_l1", "outline_l2", "specialty_name", "is_required", "is_protected",
+    "analysis", "basis", "outline_l1", "outline_l2", "specialty_name", "is_required", "is_protected", "version_hash",
 )
 
 
@@ -41,18 +41,24 @@ def active_bank_id(conn: sqlite3.Connection, bank_id: Any = None) -> int:
 
 
 def filters(conn: sqlite3.Connection, user, *, bank_id=None, **kwargs) -> dict:
-    from app.services.practice_selection import selection, matching_count, tag_facets, source_facets
+    from app.services.practice_selection import selection, matching_count, tag_facets, source_facets, specialty_facets
     bank = active_bank_id(conn, bank_id)
     sql, params = selection(conn, user, bank=bank, **kwargs)
     return {"bank_id": bank, "tags": tag_facets(conn, bank), "sources": source_facets(conn, bank),
+            "specialties": specialty_facets(conn, bank),
             "total": matching_count(conn, sql, params)}
 
 
 def questions(conn: sqlite3.Connection, user, *, bank_id=None, count: Any = 20,
-              order: str = "sequence", **kwargs) -> dict:
+              order: str = "sequence", stable_ids: list[str] | None = None, **kwargs) -> dict:
     from app.services.practice_selection import selection, matching_count
     bank = active_bank_id(conn, bank_id)
     sql, params = selection(conn, user, bank=bank, order=order, **kwargs)
+    if stable_ids:
+        if len(stable_ids) > MAX_PRACTICE_COUNT:
+            raise bad_request("最多恢复200道题")
+        sql += " AND qv.stable_id IN (" + ",".join("?" for _ in stable_ids) + ")"
+        params.extend(stable_ids)
     try:
         limit = int(count)
     except (TypeError, ValueError):
@@ -67,6 +73,7 @@ def questions(conn: sqlite3.Connection, user, *, bank_id=None, count: Any = 20,
     for row in rows:
         out.append({
             "stable_id": row["stable_id"], "bank_id": bank, "qtype": row["qtype"],
+            "version_hash": row["version_hash"],
             "stem": row["stem"], "options": _loads(row["options"], {}),
             "score": row["score"], "answer": row["answer"], "analysis": row["analysis"],
             "basis": row["basis"], "outline_l1": row["outline_l1"], "outline_l2": row["outline_l2"],

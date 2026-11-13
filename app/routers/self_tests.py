@@ -16,8 +16,10 @@ class ScopeIn(BaseModel):
     bank_id: int | None = None
     person_category: str | None = None
     specialty_code: str | None = None
+    specialty_codes: list[str] = Field(default_factory=list, max_length=100)
+    scope_mode: str = 'custom'
     tags: list[str] = Field(default_factory=list, max_length=100)
-    source_file_ids: list[StrictInt] = Field(default_factory=list, max_length=100)
+    source_file_ids: list[StrictInt] = Field(default_factory=list, max_length=1000)
 
 
 class StartIn(ScopeIn):

@@ -1,4 +1,4 @@
-# 离线 ETL / 测试专用依赖（不进生产镜像）。解释器一律用 mamba 的 ame 环境，Python 3.14.4：
+# 离线 ETL / 测试依赖；Excel 解析库也由 requirements.txt 提供给后台。解释器使用 ame，Python 3.14.4：
 #   /d/services/mamba_envs/ame/python.exe   （Windows: D:\services\mamba_envs\ame\python.exe）
 #   不要用系统默认 python，也不要在仓库外建 venv。
 #   /d/services/mamba_envs/ame/python.exe -m pip install --only-binary=:all: -r requirements.txt -r requirements-etl.txt

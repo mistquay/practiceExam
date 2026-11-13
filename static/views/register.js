@@ -44,7 +44,7 @@ export function render(view, { navigate }) {
       imageUrl = URL.createObjectURL(blob);
       image.src = imageUrl;
       challengeId = response.headers.get("X-Captcha-ID") || "";
-      captchaMessage.textContent = "验证码约3分钟有效；提交后需换一张。";
+      captchaMessage.textContent = "";
     } catch (err) {
       if (!disposed) captchaMessage.textContent = err.message;
     } finally {
@@ -87,12 +87,11 @@ export function render(view, { navigate }) {
 
   mount(view, h("section", { class: "card login-card" },
     h("h1", { class: "card-title" }, "注册账号"),
-    h("p", { class: "hint" }, "注册后即可练习和自主考试，无需审批。"),
     h("form", { class: "form", onsubmit: onSubmit },
       h("label", { class: "field" }, h("span", null, "用户名"), username),
-      h("p", { class: "hint", id: "username-help" }, "3–32位字母、数字、下划线或短横线，以字母或数字开头；不含空格，统一为小写。"),
+      h("p", { class: "hint", id: "username-help" }, "3–32位字母、数字、下划线或短横线，以字母或数字开头。"),
       h("label", { class: "field" }, h("span", null, "密码"), password),
-      h("p", { class: "hint", id: "password-help" }, "至少8位，包含字母和数字，不含空白；中文等多字节字符合计不超过72字节。"),
+      h("p", { class: "hint", id: "password-help" }, "至少8位，包含字母和数字，不含空格。"),
       h("label", { class: "field" }, h("span", null, "确认密码"), confirm),
       h("label", { class: "field" }, h("span", null, "图形验证码"), code),
       refresh, h("div", { id: "captcha-help" }, captchaMessage), message, submit),

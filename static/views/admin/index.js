@@ -3,7 +3,7 @@ import { h, mount } from "../../components/dom.js";
 
 const TABS = [
   { key: "users", title: "用户", load: () => import("./users.js") },
-  { key: "banks", title: "题库版本", load: () => import("./banks.js") },
+  { key: "banks", title: "题库管理", load: () => import("./banks.js") },
   { key: "templates", title: "试卷模板", load: () => import("./templates.js") },
   { key: "batches", title: "场次与成绩导出", load: () => import("./batches.js") },
   { key: "grading", title: "人工阅卷", load: () => import("./grading.js") },

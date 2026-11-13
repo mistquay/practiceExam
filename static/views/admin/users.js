@@ -106,7 +106,7 @@ export async function render(view) {
       h(
         "p",
         { class: "hint" },
-        "UTF-8 编码，首行为表头：employee_no,name,team,role,initial_password。用户名唯一；已存在的用户名按更新处理；role 取 admin / examinee。人员类别由用户在练习或考试时自主选择，不作为账号固定身份。"
+        "UTF-8 编码，首行为表头：employee_no,name,team,role,initial_password。用户名唯一；已存在的用户名按更新处理；role 取 admin / examinee。"
       ),
       h("div", { class: "row-inline" }, file, importBtn),
       importResult

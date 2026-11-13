@@ -48,7 +48,7 @@ export function render(view, { query, navigate, onLogin }) {
         submitBtn
       ),
       h("p", { class: "hint" }, "没有账号？", h("a", { href: "#/register" }, "注册账号")),
-      h("p", { class: "hint" }, "也可使用管理员导入的账号；忘记密码请联系管理员重置。")
+      h("p", { class: "hint" }, "忘记密码请联系管理员重置。")
     )
   );
   employeeNo.focus();

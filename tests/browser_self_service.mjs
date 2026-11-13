@@ -17,6 +17,9 @@ async function pointerClick(expression) {
   await command('cua', 'click', String(point.x), String(point.y));
 }
 async function act(selector, method, ...args) {
+  const tags = 'form:not(.self-test-form) exam-tag-picker:has(.tag-picker-trigger[aria-label="题目标签"])';
+  if (selector.startsWith('.tag-picker ')) selector = tags + selector.slice('.tag-picker'.length);
+  else if (selector.startsWith('.tag-picker-trigger')) selector = `${tags} ${selector}`;
   const element = `document.querySelector(${JSON.stringify(selector)})`;
   if (method === 'click') return pointerClick(element);
   if (method === 'check') {
@@ -28,7 +31,7 @@ async function act(selector, method, ...args) {
     steps: [{ m: 'locator', args: [selector] }], action: { m: method, args },
   }));
 }
-const button = (name) => pointerClick(`[...document.querySelectorAll('button')].find(e=>e.textContent===${JSON.stringify(name)})`);
+const button = (name) => pointerClick(`[...(document.querySelector('.tag-picker-panel:not([hidden])') || document).querySelectorAll('button')].find(e=>e.textContent===${JSON.stringify(name)})`);
 async function select(name, value) {
   const index = await evaluate(`(() => { const label=[...document.querySelectorAll('label')]
     .find(e=>e.querySelector(':scope > span')?.textContent===${JSON.stringify(name)});
@@ -45,12 +48,12 @@ async function wait(js) {
   }
   assert.fail(`等待页面状态超时：${js}`);
 }
-const state = () => evaluate(`(() => { const p = document.querySelector('exam-tag-picker'); return {
+const state = () => evaluate(`(() => { const p = document.querySelector('.tag-picker-trigger[aria-label="题目标签"]').parentElement; return {
   open: !p.panel.hidden, value: p.value, expanded: p.trigger.getAttribute('aria-expanded'),
   focusTrigger: document.activeElement === p.trigger, focusFirst: document.activeElement === p.inputs[0].input,
 }; })()`);
 async function layout(expectedWidth) {
-  const data = await evaluate(`(() => { const p=document.querySelector('exam-tag-picker');
+  const data = await evaluate(`(() => { const p=document.querySelector('.tag-picker-trigger[aria-label="题目标签"]').parentElement;
     const controls=[p.trigger,...p.querySelectorAll('.tag-picker-option, .tag-picker-actions button')];
     return {width:innerWidth,scroll:document.documentElement.scrollWidth,
       targets:controls.map(e=>{const r=e.getBoundingClientRect();return {w:r.width,h:r.height,x:r.x,right:r.right}})}; })()`);
@@ -80,7 +83,7 @@ try {
     await act('.tag-picker-trigger', 'click');
     measurements.push(await layout(width));
     // 全部真实颜色/数据标签选中时摘要很长，也必须在窄屏换行且不溢出。
-    const codes = await evaluate(`document.querySelector('exam-tag-picker').inputs.map(e=>e.code)`);
+    const codes = await evaluate(`document.querySelector('.tag-picker-trigger[aria-label="题目标签"]').parentElement.inputs.map(e=>e.code)`);
     for (const code of codes) await act(`.tag-picker input[value="${code}"]`, 'check');
     assert.equal((await state()).value.length, codes.length);
     assert.equal((await state()).open, true);
@@ -119,17 +122,19 @@ try {
     assert.equal((await state()).open, false, '外部点击必须关闭');
     await act('.tag-picker-trigger', 'press', 'ArrowDown');
     for (let n=0; n<13; n++) await command('cua', 'keypress', 'Tab');
-    await wait(`!document.querySelector('exam-tag-picker').contains(document.activeElement)`);
+    await wait(`!document.querySelector('.tag-picker-trigger[aria-label="题目标签"]').parentElement.contains(document.activeElement)`);
     assert.equal((await state()).open, false);
     assert.equal((await state()).focusTrigger, false);
     console.log(`PASS ${width}px：多选保持展开、取消回退、清空、完成、Esc、外点、键盘和焦点、44px、无横向溢出`);
   }
-  await select('人员类型', '一线人员');
+  await act('form:not(.self-test-form) select[aria-label="人员题库"]', 'selectOption', '一线人员');
   await act('.tag-picker-trigger', 'click');
   await act('.tag-picker input[value="protected"]', 'check');
   await button('完成');
-  const fileId = await evaluate(`document.querySelector('select[aria-describedby="practice-source-description"]').options[1].value`);
-  await select('题目来源（完整路径 / 工作表）', fileId);
+  const fileId = await evaluate(`document.querySelector('.tag-picker-trigger[aria-label="题目来源"]').parentElement.inputs[0].code`);
+  await act('form:not(.self-test-form) .tag-picker-trigger[aria-label="题目来源"]', 'click');
+  await act(`form:not(.self-test-form) exam-tag-picker input[value="${fileId}"]`, 'check');
+  await button('完成');
   await wait(`!document.querySelector('form [role="status"]').textContent.includes('正在')`);
   const expected = await evaluate(`(async()=>{const url=new URL('/api/practice/filters',location.origin);
     url.searchParams.set('person_category','一线人员');url.searchParams.set('tags','protected');
@@ -138,12 +143,13 @@ try {
     .includes(expected ? `匹配 ${expected} 道题` : '没有符合条件'));
   await button('清空筛选');
   await wait(`!!document.querySelector('.self-test-form')`);
-  await act('.self-test-form select', 'selectOption', '一线人员');
+  await evaluate(`(()=>{document.querySelector('.self-test-form').closest('details').open=true;return true})()`);
+  await act('.self-test-form select[aria-label="人员题库"]', 'selectOption', '一线人员');
   await wait(`!document.querySelector('.self-test-form button[type="submit"]').disabled`);
   // 保留原 100 题纯客观开考/交卷覆盖；首页不再选择模板或受限专业。
   await button('随机组卷并开考');
   await wait(`location.hash.startsWith('#/exam/') && !!document.querySelector('.timer')`);
-  assert((await command('read')).includes('非正式成绩'));
+  assert(!(await command('read')).includes('非正式'));
   const attempt = await evaluate(`(async()=> (await fetch('/api/exams/'+location.hash.split('/').pop())).json())()`);
   assert.equal(attempt.person_category, '一线人员');
   assert.equal(attempt.exam_mode, 'self_service');
@@ -152,11 +158,11 @@ try {
   await button('交卷');
   await wait(`!!document.querySelector('.result-summary')`);
   assert.equal(await evaluate(`document.querySelector('.score').textContent`), '0');
-  assert((await command('read')).includes('非正式成绩'));
+  assert(!(await command('read')).includes('非正式'));
   await act('a[href="#/history"]', 'click');
-  await wait(`document.body.innerText.includes('自主模拟') && !document.querySelector('.loading')`);
-  assert((await command('read')).includes('非正式成绩'));
-  console.log('PASS 无授权首页自主选择人员类型、100题开考、服务端交卷计分、非正式成绩与考试历史');
+  await wait(`document.body.innerText.includes('模拟考试') && !document.querySelector('.loading')`);
+  assert(!(await command('read')).includes('非正式'));
+  console.log('PASS 首页选题、100题开考、交卷计分和模拟考试记录');
   console.log(JSON.stringify(measurements));
 } finally {
   close();

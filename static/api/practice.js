@@ -9,6 +9,8 @@ export async function fetchPracticeQuestions(p) {
     bank_id: p.bankId,
     person_category: p.personCategory,
     specialty_code: p.specialtyCode,
+    specialty_codes: p.specialtyCodes,
+    scope_mode: p.scopeMode,
     qtype: p.qtype,
     count: p.count,
     order: p.order,

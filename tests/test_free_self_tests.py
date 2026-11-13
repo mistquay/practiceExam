@@ -82,7 +82,7 @@ def test_self_review_lifecycle_and_permissions(scenario, counts):
     history = user.get('/api/exams').json()['items'][0]
     assert history['score'] is None and history['status']=='pending_review'
     export = user.get('/api/reports/export', params={'format':'json'}).json()
-    assert export['rows'][0]['score']=='' and export['rows'][0]['status']=='待自评'
+    assert export['rows'][0]['score']=='' and export['rows'][0]['status']=='待评分'
     assert export['graded_count']==0
     for value in [-1, short[0]['score']+0.01, 0.001, 'NaN', 'Infinity']:
         assert user.post(path+'/self-rating', json={**rating,'score':value}).status_code in (400,422)
@@ -97,7 +97,7 @@ def test_self_review_lifecycle_and_permissions(scenario, counts):
     assert final['score']==100 and final['status']=='graded' and '自评' in final['notice']
     assert user.get('/api/exams').json()['items'][0]['score']==100
     export = user.get('/api/reports/export', params={'format':'json'}).json()
-    assert export['graded_count']==0 and export['pass_rate'] is None and export['rows'][0]['status']=='自评/非正式'
+    assert export['graded_count']==0 and export['pass_rate'] is None and export['rows'][0]['status']=='已出分'
 
 
 def test_expiration_and_blank(scenario):

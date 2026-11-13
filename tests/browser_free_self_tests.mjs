@@ -15,7 +15,7 @@ async function click(selector) {
   await command('cua','click',String(p.x),String(p.y));
 }
 const fill = (selector,value,index=0) => command('locator',JSON.stringify({steps:[{m:'locator',args:[selector]},{m:'nth',args:[index]}],action:{m:'fill',args:[String(value)]}}));
-const select = (value,index=0) => command('locator',JSON.stringify({steps:[{m:'locator',args:['.self-test-form select']},{m:'nth',args:[index]}],action:{m:'selectOption',args:[value]}}));
+const select = value => command('locator',JSON.stringify({steps:[{m:'locator',args:['.self-test-form select[aria-label="人员题库"]']}],action:{m:'selectOption',args:[value]}}));
 const nums='.self-test-form input[type=number]:not(:disabled)';
 const measurements=[];
 try {
@@ -28,6 +28,7 @@ try {
   await fill('input[name=password]',process.env.EXAM_BROWSER_PASSWORD);
   await click('button[type=submit]');
   await wait(`!!document.querySelector('.self-test-form') && !document.querySelector('.self-test-form button[type=submit]').disabled`);
+  await evaluate(`(()=>{document.querySelector('.self-test-form').closest('details').open=true;return true})()`);
   for(const width of [1280,320,390]) {
     await command('viewport',String(width),'900',...(width<500?['--mobile']:[]));
     await select('领导人员');
@@ -36,12 +37,12 @@ try {
     assert.deepEqual(await evaluate(`[...document.querySelectorAll('${nums}')].map(e=>Number(e.value))`),[80,0,10,10,60]);
     assert.equal((await evaluate(`(${checkSelfTestModes.toString()})()`)).result, 'PASS');
     // 标签菜单实际打开与关闭，保留手机下拉组件交互。
-    await click('.self-test-form .tag-picker-trigger');
-    await wait(`!document.querySelector('.self-test-form exam-tag-picker').panel.hidden`);
+    await click('.self-test-form .tag-picker-trigger[aria-label="题目标签"]');
+    await wait(`!document.querySelector('.self-test-form .tag-picker-trigger[aria-label="题目标签"]').nextElementSibling.hidden`);
     const m=await evaluate(`(()=>{const f=document.querySelector('.self-test-form');return {width:innerWidth,scroll:document.documentElement.scrollWidth,overflow:[...f.querySelectorAll('input,select,button')].filter(e=>{const r=e.getBoundingClientRect();return r.width && (r.x<0||r.right>innerWidth)}).map(e=>e.tagName)}})()`);
     assert.equal(m.width,width);assert(m.scroll<=width,JSON.stringify(m));assert.deepEqual(m.overflow,[]);
     measurements.push(m);
-    await click('.self-test-form .tag-picker-trigger');
+    await click('.self-test-form .tag-picker-trigger[aria-label="题目标签"]');
     await fill(nums,200,3);
     await wait(`document.querySelector('.self-test-form button[type=submit]').disabled && document.querySelector('.self-test-form').innerText.includes('不足')`);
     await fill(nums,10,3);
@@ -61,17 +62,17 @@ try {
   await wait(`!!document.querySelector('textarea')`);
   assert((await evaluate(`document.querySelector('textarea').value`)).includes('真实浏览器'));
   await click('.exam-bar button');
-  await wait(`document.body.innerText.includes('待自评：') && document.body.innerText.includes('参考答案：')`);
-  assert((await evaluate(`document.body.innerText`)).includes('尚无最终总成绩'));
+  await wait(`document.body.innerText.includes('待评分：') && document.body.innerText.includes('参考答案：')`);
+  assert((await evaluate(`document.body.innerText`)).includes('未出总分'));
   await command('reload');
   await wait(`!!document.querySelector('input[step="0.01"]')`);
   await fill('input[step="0.01"]',12.34);
   await click('form button[type=submit]');
-  await wait(`document.body.innerText.includes('已确认 12.34') && !document.body.innerText.includes('待自评：')`);
+  await wait(`document.body.innerText.includes('得分 12.34') && !document.body.innerText.includes('待评分：')`);
   const final=await evaluate(`(async()=> (await fetch('/api/exams/${aid}')).json())()`);
   assert.equal(final.status,'graded');assert.equal(final.total_score,100);assert(final.score>=12.34&&final.score<=45.68);
   await command('goto',origin+'/#/history');
-  await wait(`document.body.innerText.includes('自评完成（非正式）')`);
-  assert((await evaluate(`document.body.innerText`)).includes('自主模拟（非正式成绩）'));
+  await wait(`document.body.innerText.includes('已出分')`);
+  assert((await evaluate(`document.body.innerText`)).includes('模拟考试'));
   console.log(JSON.stringify({result:'PASS',measurements,attempt_id:aid,final_score:final.score,flow:'无授权→领导/管理筛选→混合三题→刷新草稿→交卷→刷新→自评12.34→历史'},null,2));
 } finally { close(); }

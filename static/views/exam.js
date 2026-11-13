@@ -63,7 +63,6 @@ function runPaper(view, attemptId, attempt) {
       countEl,
       submitBtn
     ),
-    attempt.exam_mode === "self_service" ? h("p", { class: "alert alert-warning" }, attempt.notice) : null,
     statusEl,
     h("section", { class: "card" }, navEl, paperEl)
   );
@@ -215,7 +214,6 @@ function renderResult(view, data, questionsIn, localChoices) {
     "section",
     { class: "card result-summary" },
     h("h1", { class: "card-title" }, data.name || "考试成绩"),
-    data.exam_mode === "self_service" ? h("p", { class: "alert alert-warning" }, data.notice) : null,
     h(
       "div",
       { class: "score-line" },
@@ -231,7 +229,7 @@ function renderResult(view, data, questionsIn, localChoices) {
         .filter(Boolean)
         .join(" · ")
     ),
-    pending > 0 ? h("div", { class: "alert alert-warning" }, data.exam_mode === "self_service" ? `待自评：${pending} 道简答未确认；客观题 ${res.objective_score} / ${res.objective_total} 分。此时尚无最终总成绩。` : `有 ${pending} 道简答题待人工阅卷，最终成绩以阅卷后为准。`) : null
+    pending > 0 ? h("div", { class: "alert alert-warning" }, data.exam_mode === "self_service" ? `待评分：${pending} 道简答题；客观题 ${res.objective_score} / ${res.objective_total} 分。` : `${pending} 道简答题待阅卷。`) : null
   );
 
   const reviewBox = h("section", { class: "card" });
@@ -249,7 +247,7 @@ function renderResult(view, data, questionsIn, localChoices) {
     const card = renderQuestionCard(q, i, { choice: choices[q.stable_id] || "", disabled: true });
     markCard(card, isLost(it.result) ? "wrong" : it.result === "right" || it.result === "pending" ? it.result : null);
     const selfShort = data.exam_mode === "self_service" && q.qtype === "简答题";
-    const label = selfShort ? (it.result === "pending" ? "待本人自评" : it.result === "blank" ? "空白未答" : "本人自评得分")
+    const label = selfShort ? (it.result === "pending" ? "待评分" : it.result === "blank" ? "未作答" : "得分")
       : { right: "得分", wrong: "答错", pending: "待人工阅卷" }[it.result] || (it.result ? "未作答" : "未评分");
     mount(
       card.querySelector(".question-feedback"),

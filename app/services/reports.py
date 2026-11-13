@@ -32,7 +32,7 @@ EXPORT_FIELDS: list[tuple[str, str]] = [
     ("score", "得分"),
     ("objective_score", "客观题得分"),
     ("objective_total", "客观部分满分"),
-    ("self_score", "简答本人自评分（非正式）"),
+    ("self_score", "简答自评分"),
     ("total_score", "总分"),
     ("pass_score", "及格线"),
     ("passed", "是否及格"),
@@ -106,17 +106,17 @@ def rows_for(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, batch_id: An
             "attempt_id": a["id"], "started_at": a["started_at"],
             "submitted_at": a["submitted_at"] or "",
             "score": "" if a["exam_mode"] == "self_service" and a["status"] == "pending_review" else fmt_num(a["score"]), "total_score": fmt_num(a["paper_total"]),
-            "exam_mode": "自主模拟（非正式成绩）" if a["exam_mode"] == "self_service" else "管理场次",
+            "exam_mode": "模拟考试" if a["exam_mode"] == "self_service" else "管理场次",
             "pass_score": fmt_num(a["pass_score_snapshot"] if a["pass_score_snapshot"] is not None else a["pass_score"]),
             "passed": "" if a["passed"] is None else ("是" if a["passed"] else "否"),
             "required_score": fmt_num(required_score), "manual_score": fmt_num(manual),
-            "status": ("待自评" if a["status"] == "pending_review" else "自评/非正式" if a["status"] == "graded" else a["status"]) if a["exam_mode"] == "self_service" else a["status"],
+            "status": ("待评分" if a["status"] == "pending_review" else "已出分" if a["status"] == "graded" else a["status"]) if a["exam_mode"] == "self_service" else a["status"],
         })
     return rows
 
 
 def pass_rate(rows: list[dict[str, Any]]) -> float | None:
-    graded = [r for r in rows if r["passed"] in ("是", "否") and r.get("exam_mode") != "自主模拟（非正式成绩）"]
+    graded = [r for r in rows if r["passed"] in ("是", "否") and r.get("exam_mode") != "模拟考试"]
     if not graded:
         return None
     return round(sum(1 for r in graded if r["passed"] == "是") / len(graded), 6)
@@ -142,7 +142,7 @@ def export(conn: sqlite3.Connection, user: dict | sqlite3.Row, *, batch_id: Any 
     if fmt == "json":
         from app.services.util import json_dumps
         payload = {"rows": rows, "total": len(rows), "pass_rate": pass_rate(rows),
-                   "graded_count": sum(1 for r in rows if r["passed"] in ("是", "否") and r.get("exam_mode") != "自主模拟（非正式成绩）"),
-                   "passed_count": sum(1 for r in rows if r["passed"] == "是" and r.get("exam_mode") != "自主模拟（非正式成绩）")}
+                   "graded_count": sum(1 for r in rows if r["passed"] in ("是", "否") and r.get("exam_mode") != "模拟考试"),
+                   "passed_count": sum(1 for r in rows if r["passed"] == "是" and r.get("exam_mode") != "模拟考试")}
         return json_dumps(payload).encode("utf-8"), "application/json; charset=utf-8"
     return csv_bytes(rows), "text/csv; charset=utf-8"

@@ -111,7 +111,7 @@ def test_person_authorization_ui_and_helpers_removed(client):
             assert obsolete not in source, (path, obsolete)
     users = client.get("/static/views/admin/users.js").text
     assert 'title: "人员类别"' not in users
-    assert "人员类别由用户在练习或考试时自主选择" in users
+    assert "不作为账号固定身份" not in users
 
 
 def test_legacy_authorization_api_is_deprecated(client):

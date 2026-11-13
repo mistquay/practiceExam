@@ -76,7 +76,7 @@ def self_service_templates(conn: sqlite3.Connection, *, bank_id=None,
                       "specialty_codes": allowed_specialties(t), "question_count": t["question_count"],
                       "duration_min": t["duration_min"], "total_score": t["total_score"],
                       "pass_score": t["pass_score"], "exam_mode": "self_service",
-                      "notice": "自主模拟，非正式成绩；草案参数仅用于模拟，不代表正式考试规则。"})
+                      "notice": "模拟考试"})
     return items
 
 
@@ -383,11 +383,11 @@ def _base_view(conn: sqlite3.Connection, row: sqlite3.Row, tpl: sqlite3.Row,
     return {
         "attempt_id": row["id"],
         "id": row["id"],
-        "name": tpl["name"],
+        "name": "模拟考试" if row["exam_mode"] == "self_service" else tpl["name"],
         "template_name": tpl["name"],
         "paper_type": "mock" if row["exam_mode"] == "self_service" else tpl["paper_type"],
         "exam_mode": row["exam_mode"],
-        "notice": "自主模拟，非正式成绩；简答题由本人自评，非自动评分。" if row["exam_mode"] == "self_service" else "管理场次考试",
+        "notice": "简答自评" if row["exam_mode"] == "self_service" else "公司考试",
         "status": row["status"],
         "person_category": row["person_category_snapshot"],
         "specialty_code": row["specialty_snapshot"],
@@ -451,7 +451,7 @@ def list_my_exams(conn: sqlite3.Connection, user: dict | sqlite3.Row) -> list[di
     ).fetchall()
     return [
         {
-            "id": r["id"], "attempt_id": r["id"], "name": r["template_name"],
+            "id": r["id"], "attempt_id": r["id"], "name": "模拟考试" if r["exam_mode"] == "self_service" else r["template_name"],
             "template_name": r["template_name"],
             "paper_type": "mock" if r["exam_mode"] == "self_service" else r["paper_type"],
             "exam_mode": r["exam_mode"],

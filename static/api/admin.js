@@ -18,6 +18,17 @@ export async function listBankVersions() {
   return listOf(await get("/api/admin/banks"), "banks");
 }
 export const publishBank = (bankId) => post(`/api/admin/banks/${bankId}/publish`);
+export function previewBank({ files, code, name, person, specialty }) {
+  const form = new FormData();
+  files.forEach(file => form.append("files", file, file.webkitRelativePath || file.name));
+  form.append("code", code); form.append("name", name);
+  if (person) form.append("person", person);
+  if (specialty) form.append("specialty", specialty);
+  return request("POST", "/api/admin/banks/import/preview", { form });
+}
+export const confirmBankImport = (token) => post("/api/admin/banks/import/confirm", { token });
+export const exportBank = (bankId, format) => download(`/api/admin/banks/${bankId}/export`, { format }, `题库.${format}`);
+export const bankImportOptions = () => get("/api/admin/banks/import/options");
 
 // 试卷模板
 export async function listTemplates() {

@@ -12,7 +12,7 @@ class TagPicker extends HTMLElement {
   disconnectedCallback() {
     document.removeEventListener("pointerdown", this.outside);
   }
-  setup(items, onChange) {
+  setup(items, onChange, { title = "题目标签", empty = "全部标签（点击多选）", search = false, summaryLimit = Infinity } = {}) {
     this.className = "tag-picker";
     const id = `tag-picker-${++nextId}`;
     this.inputs = items.map((item) => ({ ...item,
@@ -21,9 +21,18 @@ class TagPicker extends HTMLElement {
     this.trigger = h("button", { type: "button", class: "input tag-picker-trigger",
       "aria-expanded": "false", "aria-controls": id,
       onclick: () => this.panel.hidden ? this.open() : this.close(false) });
-    this.panel = h("div", { id, class: "tag-picker-panel", hidden: true },
-      h("div", { class: "tag-picker-options", role: "group", "aria-label": "题目标签，多选取交集" },
-        this.inputs.map((item) => h("label", { class: "tag-picker-option" }, item.input, h("span", null, item.name)))),
+    this.empty = empty;
+    this.summaryLimit = summaryLimit;
+    this.trigger.setAttribute("aria-label", title);
+    const rows = this.inputs.map((item) => h("label", { class: "tag-picker-option" }, item.input, h("span", null, item.name)));
+    const searchBox = search ? h("input", { class: "input", type: "search", placeholder: `搜索${title}`, "aria-label": `搜索${title}`,
+      onkeydown: (event) => { if (event.key === "Enter") event.preventDefault(); },
+      oninput: (event) => {
+        const term = event.target.value.trim().toLowerCase();
+        rows.forEach((row, i) => { row.hidden = !this.inputs[i].name.toLowerCase().includes(term); });
+      } }) : null;
+    this.panel = h("div", { id, class: "tag-picker-panel", hidden: true }, searchBox,
+      h("div", { class: "tag-picker-options", role: "group", "aria-label": title }, rows),
       h("div", { class: "tag-picker-actions" },
         h("button", { type: "button", class: "btn btn-outline", onclick: () => { this.value = []; this.changed(); } }, "清空"),
         h("button", { type: "button", class: "btn btn-outline", onclick: () => { this.value = this.before; this.changed(); this.close(true); } }, "取消"),
@@ -33,7 +42,8 @@ class TagPicker extends HTMLElement {
         event.preventDefault(); event.stopPropagation(); this.close(true);
       }
       if (event.key === "ArrowDown" && event.target === this.trigger) {
-        event.preventDefault(); this.open(); this.inputs[0]?.input.focus();
+        event.preventDefault(); this.open();
+        (searchBox || this.inputs.find((_, i) => !rows[i].hidden)?.input)?.focus();
       }
     });
     this.addEventListener("focusout", (event) => {
@@ -53,8 +63,8 @@ class TagPicker extends HTMLElement {
   updateSummary() {
     const selected = this.inputs.filter((item) => item.input.checked);
     this.trigger.textContent = selected.length
-      ? `已选 ${selected.length} 项：${selected.map((item) => item.name).join("、")}`
-      : "全部标签（点击多选）";
+      ? `已选 ${selected.length} 项：${selected.slice(0, this.summaryLimit).map((item) => item.name).join("、")}${selected.length > this.summaryLimit ? "…" : ""}`
+      : this.empty;
   }
   changed() { this.updateSummary(); this.onChange(); }
   open() {
@@ -71,4 +81,4 @@ class TagPicker extends HTMLElement {
   }
 }
 customElements.define("exam-tag-picker", TagPicker);
-export const tagPicker = (items, onChange) => document.createElement("exam-tag-picker").setup(items, onChange);
+export const tagPicker = (items, onChange, options) => document.createElement("exam-tag-picker").setup(items, onChange, options);

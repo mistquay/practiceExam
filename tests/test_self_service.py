@@ -80,7 +80,8 @@ def test_draft_free_start_selection_snapshot_grading_history_and_export(scenario
     assert r.status_code == 200, r.text
     attempt = r.json()
     assert attempt["exam_mode"] == "self_service" and attempt["paper_type"] == "mock"
-    assert "非正式成绩" in attempt["notice"]
+    assert attempt["name"] == "模拟考试"
+    assert "非正式" not in attempt["notice"]
     for token in FORBIDDEN_TOKENS:
         assert token.lower() not in r.content.lower(), token
     row = conn.execute("SELECT * FROM attempts WHERE id=?", (attempt["id"],)).fetchone()
@@ -113,7 +114,7 @@ def test_draft_free_start_selection_snapshot_grading_history_and_export(scenario
     report = user.get("/api/reports/export", params={"format": "json"}).json()
     assert report["pass_rate"] is None and report["graded_count"] == 0
     assert report["passed_count"] == 0
-    assert all("非正式成绩" in r["exam_mode"] for r in report["rows"])
+    assert all(r["exam_mode"] == "模拟考试" for r in report["rows"])
 
 
 def test_self_service_has_no_batch_gates_but_preserves_validation(scenario):
@@ -212,4 +213,4 @@ def test_mixed_report_excludes_only_self_service_from_aggregates(scenario):
     report = user.get("/api/reports/export", params={"format": "json"}).json()
     assert report["total"] == 2 and len(report["rows"]) == 2
     assert report["graded_count"] == 1 and report["passed_count"] == 0 and report["pass_rate"] == 0
-    assert {r["exam_mode"] for r in report["rows"]} == {"管理场次", "自主模拟（非正式成绩）"}
+    assert {r["exam_mode"] for r in report["rows"]} == {"管理场次", "模拟考试"}

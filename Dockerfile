@@ -1,7 +1,7 @@
 FROM python:3.14-slim
 
-# 内网离线部署：只装运行时依赖 requirements.txt，不装 requirements-etl.txt
-# （pandas / openpyxl / xlrd 只用于离线 ETL，绝不进生产镜像）。
+# 内网离线部署：requirements.txt 包含后台 Excel 导入导出需要的解析库。
+# requirements-etl.txt 中的测试工具不进入生产镜像。
 # 完全无外网的机器有两种做法：
 #   1) 联网机先用 Python 3.14 把 wheel 下载到 wheels/，构建上下文带上 wheels/，
 #      把下面的 pip install 改成：
@@ -23,6 +23,7 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # 只拷运行时需要的代码与资源；data/ 由卷挂载，绝不把宿主机 .db / -wal 打进镜像
 COPY app/ ./app/
+COPY etl/ ./etl/
 COPY static/ ./static/
 COPY fixtures/ ./fixtures/
 COPY migrations/ ./migrations/

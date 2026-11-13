@@ -11,29 +11,21 @@ from app.services import audit, exam
 from app.services.db import write_tx
 from app.services.errors import bad_request, conflict, not_found
 from app.services.practice import active_bank_id
-from app.services.practice_selection import selection, source_facets, tag_facets
+from app.services.practice_selection import selection, source_facets, tag_facets, specialty_facets
 from app.services.util import add_minutes, json_dumps, now_iso, sha256_text, utcnow
 
 
 def scope(conn, user, body):
     bank = active_bank_id(conn, body.bank_id)
     sql, params = selection(conn, user, bank=bank, person_category=body.person_category,
-                            tags=body.tags, source_file_ids=body.source_file_ids)
-    if body.specialty_code:
-        if body.specialty_code not in {s['code'] for s in specialties(conn, bank)}:
-            raise bad_request('无效专业')
-        sql += (" AND EXISTS (SELECT 1 FROM question_tags t WHERE t.bank_version_id=qv.bank_version_id "
-                "AND t.stable_id=qv.stable_id AND t.tag_type='specialty' AND t.tag_value=?)")
-        params.append(body.specialty_code)
+                            tags=body.tags, source_file_ids=body.source_file_ids,
+                            specialty_codes=body.specialty_codes or ([body.specialty_code] if body.specialty_code else []),
+                            scope_mode=body.scope_mode)
     return bank, sql, params
 
 
 def specialties(conn, bank):
-    return [dict(r) for r in conn.execute(
-        "SELECT DISTINCT t.tag_value AS code, COALESCE(s.name, t.tag_value) AS name "
-        "FROM question_tags t JOIN question_versions q ON q.bank_version_id=t.bank_version_id "
-        "AND q.stable_id=t.stable_id AND q.retired=0 LEFT JOIN specialties s ON s.code=t.tag_value "
-        "WHERE t.bank_version_id=? AND t.tag_type='specialty' ORDER BY code", (bank,))]
+    return specialty_facets(conn, bank)
 
 
 def inventory(conn, user, body):
@@ -83,10 +75,12 @@ def start(conn, user, body):
         tid = conn.execute('SELECT id FROM paper_templates WHERE code=?', (code,)).fetchone()[0]
         config = {'bank_id': bank, 'person_category': body.person_category,
                   'specialty_code': body.specialty_code, 'tags': body.tags,
+                  'specialty_codes': body.specialty_codes, 'scope_mode': body.scope_mode,
                   'source_file_ids': body.source_file_ids, 'counts': {q: counts.get(q, 0) for q in QTYPES},
                   'duration_min': body.duration_min, 'total_score': 100,
                   'score_rule': 'equal_cents_remainder_by_sequence', 'grading': 'objective_then_self_review'}
-        draft = PaperDraft(tid, code, 1, bank, seed, body.person_category, body.specialty_code)
+        specialty_snapshot = ';'.join(body.specialty_codes) or body.specialty_code
+        draft = PaperDraft(tid, code, 1, bank, seed, body.person_category, specialty_snapshot)
         base, remainder = divmod(10000, n)
         for i, q in enumerate(chosen):
             draft.items.append({
@@ -104,7 +98,7 @@ def start(conn, user, body):
             "INSERT INTO attempts (user_id, paper_id, person_category_snapshot, specialty_snapshot, "
             "started_at, deadline_at, exam_mode, pass_score_snapshot, duration_min_snapshot) "
             "VALUES (?, ?, ?, ?, ?, ?, 'self_service', 60, ?)",
-            (user['id'], paper_id, body.person_category, body.specialty_code, at,
+            (user['id'], paper_id, body.person_category, specialty_snapshot, at,
              add_minutes(moment, body.duration_min), body.duration_min))
         aid = cur.lastrowid
         audit.log(conn, user['employee_no'], 'self_test.start', f'attempts:{aid}', at=at, after=config)
@@ -133,7 +127,7 @@ def review(conn, user, attempt_id):
                       'reference_answer': q.get('answer_raw') or q.get('answer') or '题库未提供参考答案，请自行核对资料。',
                       'own_answer': a['user_answer'] if a else '', 'max_score': q['score'],
                       'earned': a['score'] if a else 0, 'pending': bool(a and a['graded_result'] == 'pending')})
-    return {'items': items, 'notice': '本人自评，非自动评分，非正式成绩。'}
+    return {'items': items}
 
 
 def rate(conn, user, attempt_id, stable_id, value):

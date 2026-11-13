@@ -7,8 +7,8 @@ export async function renderSelfReview(box, attemptId, onRated) {
   try {
     const data = await get(`/api/self-tests/${encodeURIComponent(attemptId)}/review`);
     if (!data.items.length) { mount(box); return; }
-    mount(box, h("h2", { class: "card-title" }, "简答题本人自评"),
-      h("p", { class: "hint" }, "对照参考答案和自己的作答，逐题输入得分。确认后不能修改；所有非空简答确认后才形成最终成绩。空白未答计 0 分，无需自评。"),
+    mount(box, h("h2", { class: "card-title" }, "简答题评分"),
+      h("p", { class: "hint" }, "对照答案评分，确认后不能修改。"),
       data.items.map(q => {
         const score = h("input", { type: "number", class: "input", min: 0, max: q.max_score, step: "0.01", required: true, placeholder: `0~${q.max_score}` });
         const confirm = h("button", { type: "submit", class: "btn btn-primary" }, "确认本题自评分");
@@ -24,7 +24,7 @@ export async function renderSelfReview(box, attemptId, onRated) {
         return h("section", { class: "question-card" }, h("h3", null, `第 ${q.seq} 题 · ${q.stem}`),
           h("p", { class: "question-analysis" }, `自己的答案：${q.own_answer || "（空白未答）"}`),
           h("p", { class: "question-analysis" }, `参考答案：${q.reference_answer}`),
-          q.pending ? form : h("p", null, `已确认 ${q.earned} / ${q.max_score} 分（本人自评 / 空白计零，非正式）`));
+          q.pending ? form : h("p", null, `得分 ${q.earned} / ${q.max_score}`));
       }));
   } catch (err) { mount(box, errorBox(err)); }
 }

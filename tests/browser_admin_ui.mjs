@@ -32,7 +32,7 @@ export async function checkAdminUi() {
     assert(forms.length === 1 && forms[0].querySelector('input[placeholder="用户名 / 姓名"]'), '存在多余表单');
     assert(buttons.includes('重置密码') && buttons.includes('停用'), '账号管理操作丢失');
     assert(text.includes('role 取 admin / examinee'), '角色导入说明丢失');
-    assert(text.includes('人员类别由用户在练习或考试时自主选择'), '缺少自主选择说明');
+    assert(!text.includes('不作为账号固定身份'), '仍有账号身份解释文案');
     assert(!performance.getEntriesByType('resource').some(e => /authorizations/.test(e.name)), '曾加载旧授权资源或 API');
     measurements.push({ hash: location.hash, authorizationTextCount: count, headers, buttons, formCount: forms.length });
   }

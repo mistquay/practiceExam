@@ -4,15 +4,22 @@ import { renderPracticePicker } from "./practice-picker.js";
 import { listBanks, getDimension } from "../api/banks.js";
 import { listAvailable, startExam, listMyExams } from "../api/exam.js";
 import { getSelection, saveSelection } from "../state/selection.js";
-import { h, mount, loading, errorBox, empty, fmtDate, fmtDateTime } from "../components/dom.js";
+import { h, mount, loading, errorBox, empty, fmtDateTime } from "../components/dom.js";
 import { toastError } from "../components/toast.js";
+import { loadPracticeDraft, clearPracticeDraft } from "../state/practice-draft.js";
 
 export async function render(view, { navigate }) {
   const sel = getSelection();
   const resumeBox = h("div");
   const bankBox = h("div");
   const stepsBox = h("div");
-  mount(view, resumeBox, bankBox, stepsBox);
+  const practiceResume = h("div");
+  mount(view, practiceResume, resumeBox, bankBox, stepsBox);
+  const draft = loadPracticeDraft();
+  if (draft) mount(practiceResume, h("section", { class: "card row-between" },
+    h("h2", { class: "card-title" }, `上次练习 · 第 ${Math.max(0, draft.ids.indexOf(draft.currentId)) + 1} / ${draft.ids.length} 题`),
+    h("div", { class: "actions" }, h("button", { class: "btn btn-primary", onclick: () => navigate("/practice?resume=1") }, "继续练习"),
+      h("button", { class: "btn btn-ghost", onclick: () => { clearPracticeDraft(); mount(practiceResume); } }, "结束上次练习"))));
 
   showResumeBanner(resumeBox, navigate);
 
@@ -48,11 +55,16 @@ export async function render(view, { navigate }) {
       const dim = await getDimension(id);
       const practiceBox = h("div");
       const examBox = h("div");
+      const batches = h("div");
+      const company = h("details", { class: "card disclosure" }, h("summary", null, "公司考试"), batches);
+      company.addEventListener("toggle", () => {
+        if (company.open) renderExamOptions(batches, { bankId: id, navigate });
+      });
       mount(stepsBox,
         h("section", { class: "card" }, h("h1", { class: "card-title" }, "题库练习"), practiceBox),
-        h("section", { class: "card" }, h("h2", { class: "card-title" }, "自主模拟考试"), examBox));
+        h("details", { class: "card disclosure" }, h("summary", null, "模拟考试"), examBox), company);
       renderPracticePicker(practiceBox, { bankId: id, dim, navigate });
-      renderSteps(examBox, { bankId: id, dim, navigate });
+      renderSelfTestPicker(examBox, { bankId: id, dim, navigate });
     } catch (err) {
       mount(stepsBox, errorBox(err));
     }
@@ -80,17 +92,6 @@ async function showResumeBanner(box, navigate) {
   }
 }
 
-function renderSteps(box, options) {
-  const picker = h("div");
-  const batches = h("div");
-  const details = h("details", { class: "disclosure" }, h("summary", null, "可参加的考试场次（受场次规则限制）"), batches);
-  details.addEventListener("toggle", () => {
-    if (details.open) renderExamOptions(batches, options);
-  });
-  mount(box, picker, details);
-  renderSelfTestPicker(picker, options);
-}
-
 async function renderExamOptions(box, { bankId, specialty, paperType, personCategory, navigate }) {
   mount(box, loading("正在查询可参加的考试…"));
   let items;
@@ -101,7 +102,7 @@ async function renderExamOptions(box, { bankId, specialty, paperType, personCate
     return;
   }
   if (!items.length) {
-    mount(box, empty("当前没有可参加的场次（不在时间窗内、未列入名单或次数已用完）"));
+    mount(box, empty("当前没有可参加的考试"));
     return;
   }
 

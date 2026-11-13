@@ -79,13 +79,13 @@ try {
     measurements.push(resultSnapshot);
   }
   await evaluate(`(()=>{document.querySelector('input[step="0.01"]').value='0';document.querySelector('form').requestSubmit();return true})()`);
-  await wait(`document.body.innerText.includes('已确认 0')`);
+  await wait(`document.body.innerText.includes('得分 0')`);
   assert.deepEqual((await snapshot()).adminLinks, []);
   // 名称澄清后仍保留普通账号可参加场次的入口/API。
   await route('/', `!!document.querySelector('.self-test-form')`);
-  await evaluate(`(()=>{document.querySelector('details').open=true;return true})()`);
+  await evaluate(`(()=>{[...document.querySelectorAll('summary')].find(e=>e.textContent==='公司考试').parentElement.open=true;return true})()`);
   await wait(`performance.getEntriesByType('resource').some(e=>e.name.includes('/api/exams/available'))`);
-  assert.equal(await evaluate(`document.querySelector('summary').textContent`), '可参加的考试场次（受场次规则限制）');
+  assert.equal(await evaluate(`!![...document.querySelectorAll('summary')].find(e=>e.textContent==='公司考试')`), true);
   assert.equal(await evaluate(`fetch('/api/exams/available').then(r=>r.status)`), 200);
   for (const tab of ['', '/users', '/banks', '/templates', '/batches', '/grading', '/auth', '/auth?user=1', '/unknown']) {
     await route('/admin' + tab, `document.body.innerText.includes('无权限：仅管理员可访问')`);

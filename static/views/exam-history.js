@@ -17,10 +17,10 @@ export async function render(view) {
       dataTable(
         [
           { title: "考试", render: (r) => r.name || r.template_name || `#${r.id}` },
-          { title: "类型", render: (r) => r.exam_mode === "self_service" ? "自主模拟（非正式成绩）" : TYPES[r.paper_type] || r.paper_type || "—" },
+          { title: "类型", render: (r) => r.exam_mode === "self_service" ? "模拟考试" : TYPES[r.paper_type] || r.paper_type || "—" },
           { title: "开始", render: (r) => fmtDateTime(r.started_at) },
           { title: "交卷", render: (r) => fmtDateTime(r.submitted_at) },
-          { title: "状态", render: (r) => r.exam_mode === "self_service" && r.status === "pending_review" ? "待自评" : r.exam_mode === "self_service" && r.status === "graded" ? "自评完成（非正式）" : STATUS[r.status] || r.status || "—" },
+          { title: "状态", render: (r) => r.exam_mode === "self_service" && r.status === "pending_review" ? "待评分" : STATUS[r.status] || r.status || "—" },
           { title: "得分", render: (r) => (r.score != null ? `${r.score} / ${r.total_score ?? "—"}` : "—") },
           {
             title: "结论",
