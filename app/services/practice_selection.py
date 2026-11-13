@@ -44,7 +44,8 @@ def specialty_facets(conn, bank):
 
 def selection(conn: sqlite3.Connection, user, *, bank: int,
               person_category: str | None = None, specialty_code: str | None = None,
-              qtype: str | None = None, source: str = "all", order: str = "sequence",
+              qtype: str | None = None, qtypes: list[str] | None = None,
+              source: str = "all", order: str = "sequence",
               tags: list[str] | None = None, source_file_ids: list[int] | None = None,
               specialty_codes: list[str] | None = None, scope_mode: str = "custom"):
     # 人员类别由用户选择，绝不读取当前用户授权。专业旧参数仍保持兼容。
@@ -60,7 +61,9 @@ def selection(conn: sqlite3.Connection, user, *, bank: int,
         raise bad_request("无效专业")
     if order not in ("sequence", "random") or source not in ("all", "wrong", "unpracticed"):
         raise bad_request("无效的练习顺序或题目范围")
-    if qtype and qtype not in QTYPES:
+    # 多选题型取并集，同时兼容旧链接和接口的单题型参数。
+    selected_qtypes = list(dict.fromkeys([*(qtypes or []), *([qtype] if qtype else [])]))
+    if not set(selected_qtypes) <= set(QTYPES):
         raise bad_request("无效题型")
     tags = list(dict.fromkeys(tags or []))
     source_file_ids = list(dict.fromkeys(source_file_ids or []))
@@ -113,9 +116,10 @@ def selection(conn: sqlite3.Connection, user, *, bank: int,
                 "qs.bank_version_id = qv.bank_version_id AND qs.stable_id = qv.stable_id "
                 "AND qs.source_file_id IN (" + marks + "))")
         params.extend(source_file_ids)
-    if qtype:
-        sql += " AND qv.qtype = ?"
-        params.append(qtype)
+    if selected_qtypes:
+        marks = ",".join("?" for _ in selected_qtypes)
+        sql += " AND qv.qtype IN (" + marks + ")"
+        params.extend(selected_qtypes)
     if source == "wrong":
         sql += " AND EXISTS (SELECT 1 FROM wrong_book w WHERE w.user_id = ? AND w.stable_id = qv.stable_id)"
         params.append(user["id"])

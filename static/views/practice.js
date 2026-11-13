@@ -33,6 +33,7 @@ export async function render(view, { query, navigate }) {
       specialtyCodes: query.getAll("specialty_codes"),
       scopeMode: query.get("scope_mode"),
       qtype: query.get("qtype"),
+      qtypes: query.getAll("qtypes"),
       count: query.get("count"),
       order: query.get("order"),
       source: query.get("source"),

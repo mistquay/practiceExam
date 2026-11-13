@@ -18,13 +18,14 @@ def practice_filters(
     specialty_codes: list[str] = Query(default=[]),
     scope_mode: str = "custom",
     qtype: str | None = None,
+    qtypes: list[str] = Query(default=[]),
     order: str = "sequence",
     source: str = "all",
     tags: list[str] = Query(default=[]),
     source_file_ids: list[int] = Query(default=[]),
 ):
     return dict(bank_id=bank_id, person_category=person_category, specialty_code=specialty_code,
-                qtype=qtype, order=order, source=source, tags=tags, source_file_ids=source_file_ids,
+                qtype=qtype, qtypes=qtypes, order=order, source=source, tags=tags, source_file_ids=source_file_ids,
                 specialty_codes=specialty_codes, scope_mode=scope_mode)
 
 

@@ -2,7 +2,7 @@
 import { get, post, listOf } from "./http.js";
 
 /**
- * @param {object} p bankId / personCategory / specialtyCode / qtype / count / order / source
+ * @param {object} p bankId / personCategory / specialtyCode / qtypes / count / order / source（兼容 qtype）
  */
 export async function fetchPracticeQuestions(p) {
   const data = await get("/api/practice/questions", {
@@ -12,6 +12,7 @@ export async function fetchPracticeQuestions(p) {
     specialty_codes: p.specialtyCodes,
     scope_mode: p.scopeMode,
     qtype: p.qtype,
+    qtypes: p.qtypes,
     count: p.count,
     order: p.order,
     source: p.source,
