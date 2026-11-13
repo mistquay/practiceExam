@@ -83,8 +83,7 @@ try {
   assert.deepEqual((await snapshot()).adminLinks, []);
   // 场次入口暂时隐藏，相关代码和 API 继续保留。
   await route('/', `!!document.querySelector('.self-test-form')`);
-  assert.equal(await evaluate(`document.querySelector('#company-exams')?.hidden`), true);
-  assert.equal(await evaluate(`document.querySelector('#company-exams').getBoundingClientRect().height`), 0);
+  assert.equal(await evaluate(`document.querySelector('#company-exams')`), null);
   assert.equal(await evaluate(`document.body.innerText.includes('公司考试')`), false);
   assert.equal(await evaluate(`fetch('/api/exams/available').then(r=>r.status)`), 200);
   for (const tab of ['', '/users', '/banks', '/templates', '/batches', '/grading', '/auth', '/auth?user=1', '/unknown']) {

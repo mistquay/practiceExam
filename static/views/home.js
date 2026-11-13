@@ -8,6 +8,9 @@ import { h, mount, loading, errorBox, empty, fmtDateTime } from "../components/d
 import { toastError } from "../components/toast.js";
 import { loadPracticeDraft, clearPracticeDraft } from "../state/practice-draft.js";
 
+// 暂不挂载公司考试板块；后续启用时改为 true，相关界面与接口继续保留。
+const SHOW_COMPANY_EXAMS = false;
+
 export async function render(view, { navigate }) {
   const sel = getSelection();
   const resumeBox = h("div");
@@ -55,12 +58,7 @@ export async function render(view, { navigate }) {
       const dim = await getDimension(id);
       const practiceBox = h("div");
       const examBox = h("div");
-      const batches = h("div");
-      // 暂时隐藏入口，后续需要时移除 hidden 即可恢复。
-      const company = h("details", { id: "company-exams", class: "card disclosure", hidden: true }, h("summary", null, "公司考试"), batches);
-      company.addEventListener("toggle", () => {
-        if (company.open) renderExamOptions(batches, { bankId: id, navigate });
-      });
+      const company = SHOW_COMPANY_EXAMS ? createCompanyExams({ bankId: id, navigate }) : null;
       mount(stepsBox,
         h("section", { class: "card" }, h("h1", { class: "card-title" }, "题库练习"), practiceBox),
         h("details", { class: "card disclosure" }, h("summary", null, "模拟考试"), examBox), company);
@@ -71,6 +69,15 @@ export async function render(view, { navigate }) {
     }
   }
   loadBank(bankId);
+}
+
+function createCompanyExams(options) {
+  const batches = h("div");
+  const company = h("details", { id: "company-exams", class: "card disclosure" }, h("summary", null, "公司考试"), batches);
+  company.addEventListener("toggle", () => {
+    if (company.open) renderExamOptions(batches, options);
+  });
+  return company;
 }
 
 async function showResumeBanner(box, navigate) {
