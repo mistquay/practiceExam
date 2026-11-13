@@ -116,7 +116,7 @@ def parse_uploads(files, person: str | None = None, specialty: str | None = None
                 r.rel_path = person + "/" + relative.as_posix()
         questions = build_questions(scanned.records, mapping)
         if not questions:
-            raise bad_request("未识别到题目，请使用原始题库表头或本系统导出的Excel")
+            raise bad_request("未识别到题目，请使用原始题库表头或导出的Excel")
         return packages.from_scan(scanned, questions, mapping, specialities), {
             "raw_rows": len(scanned.records), "duplicates": len(scanned.records) - len(questions),
             "invalid_rows": len(scanned.invalid),

@@ -56,7 +56,8 @@ export async function render(view, { navigate }) {
       const practiceBox = h("div");
       const examBox = h("div");
       const batches = h("div");
-      const company = h("details", { class: "card disclosure" }, h("summary", null, "公司考试"), batches);
+      // 暂时隐藏入口，后续需要时移除 hidden 即可恢复。
+      const company = h("details", { id: "company-exams", class: "card disclosure", hidden: true }, h("summary", null, "公司考试"), batches);
       company.addEventListener("toggle", () => {
         if (company.open) renderExamOptions(batches, { bankId: id, navigate });
       });

@@ -29,7 +29,7 @@ services:
       EXAM_ADMIN_NO: ${EXAM_ADMIN_NO:-admin}
       # 不设就起不来：公开镜像不能沿用默认管理员密码
       EXAM_ADMIN_PASSWORD: ${EXAM_ADMIN_PASSWORD:?请在 .env 中设置 EXAM_ADMIN_PASSWORD}
-      EXAM_ADMIN_NAME: ${EXAM_ADMIN_NAME:-系统管理员}
+      EXAM_ADMIN_NAME: ${EXAM_ADMIN_NAME:-管理员}
       # 走 HTTPS 反向代理时设为 1，Cookie 才会带 Secure 标记
       EXAM_COOKIE_SECURE: ${EXAM_COOKIE_SECURE:-0}
       EXAM_SESSION_TTL: ${EXAM_SESSION_TTL:-43200}

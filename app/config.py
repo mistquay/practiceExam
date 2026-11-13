@@ -22,7 +22,7 @@ COOKIE_SECURE = os.getenv("EXAM_COOKIE_SECURE", "0") == "1"
 # 空库启动时创建的第一个管理员；生产环境务必用环境变量覆盖。
 BOOTSTRAP_ADMIN_NO = os.getenv("EXAM_ADMIN_NO", "admin")
 BOOTSTRAP_ADMIN_PASSWORD = os.getenv("EXAM_ADMIN_PASSWORD", "Admin@12345")
-BOOTSTRAP_ADMIN_NAME = os.getenv("EXAM_ADMIN_NAME", "系统管理员")
+BOOTSTRAP_ADMIN_NAME = os.getenv("EXAM_ADMIN_NAME", "管理员")
 
 # 会话与判分相关的常量
 EXAM_AUTO_SUBMIT_ON_DEADLINE = True

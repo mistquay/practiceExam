@@ -248,7 +248,7 @@ def set_template_status(conn: sqlite3.Connection, actor: str, template_id: int, 
     with write_tx(conn):
         before = dict(_row(conn, "paper_templates", template_id))
         if before["code"].startswith("__system_free_"):
-            raise forbidden("系统自由组卷兼容记录不能作为管理模板启用")
+            raise forbidden("自由组卷记录不能作为管理模板启用")
         conn.execute("UPDATE paper_templates SET status = ?, updated_at = ? WHERE id = ?",
                      (status, at, template_id))
         audit.log(conn, actor, "template.status", f"paper_templates:{template_id}", at=at,

@@ -86,7 +86,7 @@ async function renderImport(box, onImported) {
   const controls = h("fieldset", { class: "import-fields" },
     h("div", { class: "form-grid" }, field("新版本号", code), field("题库名称", name)),
     field("选择文件（Excel / ZIP / 完整题库包）", files), field("或选择题库目录", folder),
-    h("p", { class: "hint" }, "合计不超过50MB。整批导入请保留人员目录；原始Excel可指定归属，本系统导出的文件保留原归属。"),
+    h("p", { class: "hint" }, "合计不超过50MB。整批导入请保留人员目录；原始Excel可指定归属，导出的文件保留原归属。"),
     h("div", { class: "form-grid" }, field("人员题库", person), field("专业", specialty)), submit);
   const form = h("form", { class: "form", onsubmit: async event => {
     event.preventDefault();

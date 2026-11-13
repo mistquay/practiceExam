@@ -33,7 +33,7 @@ async def lifespan(_app: FastAPI):
             await cleanup_task
 
 
-app = FastAPI(title="题库练习与考试系统", version="1.0", lifespan=lifespan)
+app = FastAPI(title="题库练习与考试", version="1.0", lifespan=lifespan)
 
 
 @app.exception_handler(ApiError)
